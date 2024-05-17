@@ -5,7 +5,7 @@ export default function Home() {
   <div className="hero-content flex-col lg:flex-row-reverse">
     <div className="text-center lg:text-left">
     <h1 className="text-5xl font-bold">Student Information System</h1>
-    <p className="py-6">Welcome to the Student Information System (SIS) Login Page. 
+    <p className="py-6 text-justify">Welcome to CampuSphere. 
                         This secure portal is your gateway to a wide array of academic and administrative services, 
                         designed to help you manage your educational journey efficiently.</p>
 
@@ -30,7 +30,7 @@ export default function Home() {
           </label>
           
           <label className="input input-bordered flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4 opacity-70"><path fillRule="evenodd" d="M14 6a4 4 0 0 1-4.899 3.899l-1.955 1.955a.5.5 0 0 1-.353.146H5v1.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-2.293a.5.5 0 0 1 .146-.353l3.955-3.955A4 4 0 1 1 14 6Zm-4-2a.75.75 0 0 0 0 1.5.5.5 0 0 1 .5.5.75.75 0 0 0 1.5 0 2 2 0 0 0-2-2Z" clipRule="evenodd" /></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4 opacity-70"><path fillRule="evenodd" d="M14 6a4 4 0 0 1-4.899 3.899l-1.955 1.955a.5.5 0 0 1-.353.146H5v1.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-2.293a.5.5 0 0 1 .1</svg>46-.353l3.955-3.955A4 4 0 1 1 14 6Zm-4-2a.75.75 0 0 0 0 1.5.5.5 0 0 1 .5.5.75.75 0 0 0 1.5 0 2 2 0 0 0-2-2Z" clipRule="evenodd" /></svg>
           <input type="password" className="grow" placeholder="Password" defaultValue="" />
           </label>
 
