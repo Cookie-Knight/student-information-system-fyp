@@ -24,7 +24,7 @@ export default function RootLayout({
                         <ul className="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
                             {/* Sidebar content here */}
                             <br></br>
-                            <li><a href="/home">Home</a></li>
+                            <li><a href="/main">Home</a></li>
                             <br></br>
                             <li><a href="/home/sListing">Subject Listing</a></li>
                             <br></br>
@@ -61,13 +61,7 @@ export default function RootLayout({
                             </div>
                         </div>
                         <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
-                            <li>
-                                <a className="justify-between">
-                                    Profile
-                                    <span className="badge">New</span>
-                                </a>
-                            </li>
-                            <li><a href="/home/settings">Settings</a></li>
+                            <li><a href="/main/profile">Profile</a></li>
                             <li><a href="/">Logout</a></li>
                         </ul>
                     </div>
