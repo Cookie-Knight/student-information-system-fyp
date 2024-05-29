@@ -36,7 +36,7 @@ export default function RootLayout({
                             <br></br>
                             <li><a href="/home/examresult">Exam Result</a></li>
                             <br></br>
-                            <li><a href="/home/attendance">Attendance</a></li>
+                            <li><a href="/main/attendance">Attendance</a></li>
                             <br></br>
                             <li><a href="/home/perks">Perks</a></li>
                             <br></br>
