@@ -2,117 +2,99 @@ export default function ExamResult() {
     return (
         <main>
             <div className="flex flex-col w-full">
-            <div className="stats stats-vertical lg:stats-horizontal p-4 ml-4 mr-4 mb-4 mt-4 shadow">
-  
-  <div className="stat">
-    <div className="stat-title">Semester</div>
-    <div className="stat-value text-lg ">5</div>
-  </div>
-  
-  <div className="stat">
-    <div className="stat-title">Semester Period</div>
-    <div className="stat-value text-lg ">15-APR-2024 - 06-AUG-2024</div>
-  </div>
-  
-  <div className="stat">
-    <div className="stat-title">Printed Date</div>
-    <div className="stat-value text-lg ">29-MAY-2024 7:51:30 PM</div>
-  </div>
-  
-</div>
-                <div className="divider text-slate-400">THE RESULTS PUBLISHED ON THIS WEBSITE ARE FOR INFORMATION ONLY. YOU MAY PRINT THEM OUT FOR REFERENCE; HOWEVER, THESE PRINTOUTS CANNOT BE USED AS OFFICIAL DOCUMENTS.
+                <div className="stats stats-vertical lg:stats-horizontal p-4 ml-4 mr-4 mb-4 mt-4 shadow">
+                    <label className="form-control w-full max-w-xs p-4">
+                        <div className="label">
+                            <span className="label-text">Select a semester</span>
+                        </div>
+                        <select className="select select-bordered">
+                            <option disabled selected>Pick one</option>
+                            <option>Semester One</option>
+                            <option>Semester Two</option>
+                            <option>Semester Semester Three</option>
+                        </select>
+                    </label>
 
+                    <div className="stat">
+                        <div className="stat-title">Semester Period</div>
+                        <div className="stat-value text-lg ">15-APR-2024 - 06-AUG-2024</div>
+                    </div>
 
-                <div className="grid h-95 card bg-base-300 p-4 ml-4 mr-4 mb-4 mt-4 rounded-box">
+                    <div className="stat">
+                        <div className="stat-title">Printed Date</div>
+                        <div className="stat-value text-lg ">29-MAY-2024 7:51:30 PM</div>
+                    </div>
+                </div>
+
+                <div className="divider text-slate-400">THE RESULTS PUBLISHED ON THIS WEBSITE ARE FOR INFORMATION ONLY.</div>
+                <div className="card bg-base-300 rounded-box p-4 ml-4 mr-4 mb-4 mt-4">
                     <div className="overflow-x-auto">
-                        <table className="table table-xs">
-
-                        
+                        <table className="table">
+                            {/* head */}
                             <thead>
                                 <tr>
-                                    <th></th>
-                                    <th>Programme Code</th>
-                                    <th>Name</th>
-                                    <th>Time</th>
-                                    <th>Location</th>
-                                    <th>Session</th>
-                                    <th>Date</th>
+                                    <th>Subject Code</th>
+                                    <th>Subject Title</th>
+                                    <th>Credit Hours</th>
+                                    <th>Marks</th>
+                                    <th>Grade</th>
                                 </tr>
                             </thead>
                             <tbody>
-                            <tr>
-                                    <th>1</th>
-                                    <td>ENG101</td>
-                                    <td>English Literature</td>
-                                    <td>9:00 AM - 10:30 AM</td>
-                                    <td>Room 101</td>
-                                    <td>Lecture</td>
-                                    <td>5/12/2024</td>
-                                </tr>
+                                {/* row 1 */}
                                 <tr>
-                                    <th>2</th>
-                                    <td>MTH202</td>
-                                    <td>Advanced Calculus</td>
-                                    <td>11:00 AM - 12:30 PM</td>
-                                    <td>Room 202</td>
-                                    <td>Lecture</td>
-                                    <td>5/12/2024</td>
+                                    <td>CS101</td>
+                                    <td>Introduction to Computer Science</td>
+                                    <td>3</td>
+                                    <td>85</td>
+                                    <td>A</td>
                                 </tr>
+                                {/* row 2 */}
                                 <tr>
-                                    <th>3</th>
-                                    <td>CSC303</td>
-                                    <td>Data Structures</td>
-                                    <td>2:00 PM - 3:30 PM</td>
-                                    <td>Room 303</td>
-                                    <td>Lecture</td>
-                                    <td>5/12/2024</td>
+                                    <td>CS201</td>
+                                    <td>Data Structures and Algorithms</td>
+                                    <td>4</td>
+                                    <td>92</td>
+                                    <td>A+</td>
                                 </tr>
+                                {/* row 3 */}
                                 <tr>
-                                    <th>4</th>
-                                    <td>PHY404</td>
-                                    <td>Quantum Mechanics</td>
-                                    <td>4:00 PM - 5:30 PM</td>
-                                    <td>Room 404</td>
-                                    <td>Lecture</td>
-                                    <td>5/12/2024</td>
-                                </tr>
-                                <tr>
-                                    <th>5</th>
-                                    <td>CHE105</td>
-                                    <td>Organic Chemistry</td>
-                                    <td>9:00 AM - 10:30 AM</td>
-                                    <td>Room 105</td>
-                                    <td>Lab</td>
-                                    <td>5/13/2024</td>
-                                </tr>
-                                <tr>
-                                    <th>6</th>
-                                    <td>HIS206</td>
-                                    <td>Modern History</td>
-                                    <td>11:00 AM - 12:30 PM</td>
-                                    <td>Room 206</td>
-                                    <td>Lecture</td>
-                                    <td>5/13/2024</td>
+                                    <td>CS301</td>
+                                    <td>Database Management Systems</td>
+                                    <td>3</td>
+                                    <td>78</td>
+                                    <td>B+</td>
                                 </tr>
                             </tbody>
-                            <tfoot>
-                                <tr>
-                                    <th></th>
-                                    <th>Programme Code</th>
-                                    <th>Name</th>
-                                    <th>Time</th>
-                                    <th>Location</th>
-                                    <th>Session</th>
-                                    <th>Date</th>
-                                </tr>
-                            </tfoot>
-                            
                         </table>
-                        
+                    </div>
+                </div>
+
+                <div className="card bg-base-300 rounded-box p-4 ml-4 mr-4 mb-4 mt-4">
+                    <div className="overflow-x-auto">
+                        <table className="table">
+                            {/* head */}
+                            <thead>
+                                <tr>
+                                    <th>Semester Credits</th>
+                                    <th>GPA</th>
+                                    <th>Total Credit Hours Earned</th>
+                                    <th>CGPA</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {/* row 1 */}
+                                <tr>
+                                    <td>15</td>
+                                    <td>3.67</td>
+                                    <td>10</td>
+                                    <td>3.75</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-            </div>
-</main>
+        </main>
     )
 }
