@@ -39,7 +39,7 @@ export default function Home() {
           </label>
         </div>
         <div className="form-control mt-6">
-          <button href="/dd" className="btn btn-primary">Login</button>
+          <button className="btn btn-primary">Login</button>
         </div>
       </form>
     </div>

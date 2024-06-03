@@ -18,27 +18,27 @@ export default function RootLayout({
             <div className="navbar bg-base-100">
                 <div className="flex-1 z-50">
                     <input id="my-drawer" type="checkbox" className="drawer-toggle" />
-                    <label htmlFor="my-drawer" className="btn btn-ghost text-xl">
-                        CampuSphere
-                    </label>
+                    <label htmlFor="my-drawer" className="btn btn-ghost text-xl">CampuSphere</label>
                     <div className="drawer-side">
-                        <label
-                            htmlFor="my-drawer"
-                            aria-label="close sidebar"
-                            className="drawer-overlay"
-                        ></label>
+                        <label htmlFor="my-drawer" aria-label="close sidebar" className="drawer-overlay"></label>
                         <ul className="menu w-80 min-h-full bg-base-200 text-base-content">
                             {/* Sidebar content here */}
-                            <li className="my-4">
-                                <a href="/main">Home</a>
-                            </li>
-                            <li className="my-4">
-                                <a href="/home/sListing">Subject Listing</a>
-                            </li>
-                            <li className="my-4">
-                                <a href="/home/pHistory">Programme History</a>
-                            </li>
-                            <li className="my-4"></li>
+                            
+                            <li className="my-4"><a href="/main">Home</a></li>
+                            
+                            <li className="my-4"><a href="/main/subjectlisting">Subject Listing</a></li>
+                            
+                            <li className="my-4"><a href="/main/programme">Programme History</a></li>
+                            
+                            <li className="my-4"><a href="/main/timetable">Timetable</a></li>
+                            
+                            <li className="my-4"><a href="/main/examtimetable">Exam Timetable</a></li>
+                            
+                            <li className="my-4"><a href="/main/examresult">Exam Result</a></li>
+                            
+                            <li className="my-4"><a href="/main/attendance">Attendance</a></li>
+                            
+                            <li className="my-4"><a href="/home/perks">Perks</a></li>
                             
                             <li className="my-4"><a href="/home/news">Campus News</a></li>
                             
