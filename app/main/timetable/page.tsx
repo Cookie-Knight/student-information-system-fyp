@@ -23,12 +23,7 @@ export default function Timetable() {
                 
                 <div className="divider text-slate-400">The following is the scheduled class information. Subject to changes.</div>
                
-                <div className="join self-center">
-                <button className="join-item btn">«</button>
-                <button className="join-item btn">Page 1</button>
-                <button className="join-item btn">»</button>
-                
-                </div>
+              
                 <div className="grid h-95 card bg-base-300 p-4 ml-4 mr-4 mb-4 mt-4 rounded-box">
                     <div className="overflow-x-auto">
                         <table className="table table-xs">
