@@ -38,11 +38,11 @@ export default function RootLayout({
                             
                             <li className="my-4"><a href="/main/attendance">Attendance</a></li>
                             
-                            <li className="my-4"><a href="/home/perks">Perks</a></li>
+                            <li className="my-4"><a href="/main/perks">Perks</a></li>
                             
-                            <li className="my-4"><a href="/home/news">Campus News</a></li>
+                            <li className="my-4"><a href="/main/news">Campus News</a></li>
                             
-                            <li className="my-4"><a href="/home/feedbacks">Feedbacks</a></li>
+                            <li className="my-4"><a href="/main/feedbacks">Feedbacks</a></li>
                         </ul>
                     </div>
                 </div>
