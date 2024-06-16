@@ -21,7 +21,7 @@ export default function Timetable() {
   
   </div>
                 
-                <div className="divider text-slate-400">The following is the scheduled examination information.</div>
+                <div className="divider text-slate-400">The following is the scheduled classes information. Information may be subjected to changes.</div>
   
                 <div className="grid h-95 card bg-base-300 p-4 ml-4 mr-4 mb-4 mt-4 rounded-box">
                     <div className="overflow-x-auto">
@@ -103,6 +103,13 @@ export default function Timetable() {
                         
                     </div>
                 </div>
+
+                <div className="join justify-center">
+                <button className="join-item btn">«</button>
+                <button className="join-item btn">Page 1</button>
+                <button className="join-item btn">»</button>
+                </div>
+                
             </div>
   </main>
     )
