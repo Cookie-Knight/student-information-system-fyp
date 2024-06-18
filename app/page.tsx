@@ -34,9 +34,31 @@ export default function Home() {
           <input type="password" className="grow" placeholder="Password" defaultValue="" />
           </label>
 
-          <label className="label">
-            <a href="#" className="label-text-alt link link-hover">Forgot password?</a>
-          </label>
+          {/* The button to open modal */}
+          <label htmlFor="forgot_password" className="link mt-2 text-xs">Forgot Password?</label>
+
+          {/* Modal prompt form: Forgot Password */}
+        
+          <input type="checkbox" id="forgot_password" className="modal-toggle" />
+          <div className="modal" role="dialog">
+            <div className="modal-box">
+              <h3 className="font-bold text-lg">Forgotten your password?</h3>
+              <button className="btn btn-sm btn-circle btn-ghost absolute right-4 top-5">✕</button>
+              <p className="py-2 text-sm">Type your email below! We'll send you a reset link if the email is valid!</p>
+             
+              <label className="input input-bordered flex items-center gap-2 mt-4">
+              Email
+              <input type="text" className="grow" placeholder="campusphere@site.com" />
+              </label>
+            
+              <div className="modal-action">
+                <button type="submit" value="Submit" className="btn">Submit</button>
+              </div>
+            
+            </div>
+          </div>
+        
+
         </div>
         <div className="form-control mt-6">
           <button className="btn btn-primary">Login</button>
