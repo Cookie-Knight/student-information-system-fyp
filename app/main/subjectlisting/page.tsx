@@ -37,32 +37,28 @@ export default function SubjectListing() {
     {/* head */}
     <thead>
       <tr>
-        <th>Programme</th>
-        <th>Semester</th>
-        <th>Semester Period</th>
-        <th>Status</th>
+      <th>Subject Code</th>
+      <th>Subject Name</th>
+      <th>Status</th>
       </tr>
     </thead>
     <tbody>
       {/* row 1 */}
       <tr>
-        <td>Diploma in Information Technology</td>
-        <td>3</td>
-        <td>15-APR-2024 - 06-AUG-2024</td>
-        <td>Active</td>
+        <td>MTH202</td>
+        <td>Linear Algebra</td>
+        <td>Finish</td>
       </tr>
       {/* row 2 */}
       <tr className="hover">
-        <td>Diploma in Information Technology</td>
-        <td>2</td>
-        <td>15-JAN-2024 - 22-MAR-2024</td>
+        <td>PHY405</td>
+        <td>Quantum Mechanics</td>
         <td>Finish</td>
       </tr>
       {/* row 3 */}
       <tr>
-        <td>Diploma in Information Technology</td>
-        <td>1</td>
-        <td>21-AUG-2023 - 18-DEC-2023</td>
+        <td>ENG301</td>
+        <td>Advanced Writing Techniques</td>
         <td>Finish</td>
       </tr>
     </tbody>
