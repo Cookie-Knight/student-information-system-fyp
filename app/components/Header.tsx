@@ -1,23 +1,21 @@
 "use client";
 
-// components/LogoutButton.js
-
 import React from 'react';
 import { auth } from '@/app/firebase'; // Adjust the path according to your file structure
 import { useRouter } from 'next/navigation';
 
-
 export default function Header() {
-  const router = useRouter();
+  const navigation = useRouter();
+
   const handleLogout = async () => {
     try {
-      await auth.signOut(); // Signs out the user
-      router.push('/'); // Redirects to the login page (assuming it's '/')
+      await auth.signOut();
+      console.log('User signed out successfully');
+      navigation.push('/');
     } catch (error) {
       console.error('Error signing out:', error);
     }
   };
-
 
   return (
     <header>
@@ -50,7 +48,7 @@ export default function Header() {
             </div>
             <ul className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
               <li><a href="/main/profile">Profile</a></li>
-              <li><a href="#" onClick={handleLogout}>Log Out</a></li>
+              <li><a onClick={handleLogout}>Log Out</a></li>
             </ul>
           </div>
         </div>

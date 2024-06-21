@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Header from "@/app/components/Header";
 import { db, auth } from "./firebase"; // Assuming you have auth imported from firebase
 import { doc, getDoc } from "firebase/firestore";
+import { useRouter } from 'next/navigation'; // Import useRouter from Next.js
 
 interface StudentData {
   name: string;
@@ -11,19 +12,22 @@ interface StudentData {
   cgpa: string;
 }
 
-export default function Main() {
+const Main: React.FC = () => {
   const [studentData, setStudentData] = useState<StudentData>({
     name: "",
     studentId: "",
     cgpa: ""
   });
-
+  const router = useRouter(); // Initialize useRouter
+  
   useEffect(() => {
-    const fetchStudentData = async () => {
+    const checkAuth = async () => {
       try {
         const user = auth.currentUser;
-        if (user) {
-          const docRef = doc(db, "students", user.uid); // Assuming your document ID in Firestore is the user's UID
+        if (!user) {
+          router.push('/'); // Redirect to '/' if user is not authenticated
+        } else {
+          const docRef = doc(db, "students", user.uid);
           const docSnap = await getDoc(docRef);
 
           if (docSnap.exists()) {
@@ -32,15 +36,13 @@ export default function Main() {
           } else {
             console.log("No such document!");
           }
-        } else {
-          console.log("No user logged in!");
         }
       } catch (error) {
         console.error("Error fetching document: ", error);
       }
     };
 
-    fetchStudentData();
+    checkAuth();
   }, []); // Empty dependency array ensures useEffect runs only once
 
   return (
@@ -219,4 +221,6 @@ export default function Main() {
       </div>
     </main>
   );
-}
+};
+
+export default Main;
