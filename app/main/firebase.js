@@ -1,5 +1,6 @@
 // Import the necessary Firebase modules
-import { initializeApp } from "firebase/app";
+
+import { initializeApp, getApp, getApps } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
@@ -24,4 +25,4 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 
 // Export the initialized services
-export { db, auth };
+export { db, auth, app };

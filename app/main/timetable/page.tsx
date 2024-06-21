@@ -1,6 +1,10 @@
+import Header from "@/app/components/Header";
+
 export default function Timetable() {
     return (
         <main>
+            <Header />
+            
             <div className="flex flex-col w-full">
             <div className="stats stats-vertical lg:stats-horizontal p-4 ml-4 mr-4 mb-4 mt-4 shadow">
   

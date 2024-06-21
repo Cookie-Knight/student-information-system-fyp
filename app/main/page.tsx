@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Header from "@/app/components/Header";
 import { db, auth } from "./firebase"; // Assuming you have auth imported from firebase
 import { doc, getDoc } from "firebase/firestore";
 
@@ -44,6 +45,7 @@ export default function Main() {
 
   return (
     <main>
+      <Header />
       <div className="p-5">
         <div className="flex justify-center items-center stats shadow">
           <div className="stat">

@@ -1,6 +1,9 @@
+import Header from "@/app/components/Header";
+
 export default function Feedbacks() {
     return (
         <main>
+            <Header />
             <div className="flex flex-col w-full">
 
                 
