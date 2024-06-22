@@ -39,7 +39,7 @@ export default function Timetable() {
                                     <th>Name</th>
                                     <th>Time</th>
                                     <th>Location</th>
-                                    <th>Date</th>
+                                    <th>Day</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -49,7 +49,7 @@ export default function Timetable() {
                                     <td>English Literature</td>
                                     <td>9:00 AM - 10:30 AM</td>
                                     <td>Room 101</td>
-                                    <td>5/12/2024</td>
+                                    <td>Monday</td>
                                 </tr>
                                 <tr>
                                     <th>2</th>
@@ -57,7 +57,7 @@ export default function Timetable() {
                                     <td>Advanced Calculus</td>
                                     <td>11:00 AM - 12:30 PM</td>
                                     <td>Room 202</td>
-                                    <td>5/12/2024</td>
+                                    <td>Tuesday</td>
                                 </tr>
                                 <tr>
                                     <th>3</th>
@@ -65,7 +65,7 @@ export default function Timetable() {
                                     <td>Data Structures</td>
                                     <td>2:00 PM - 3:30 PM</td>
                                     <td>Room 303</td>
-                                    <td>5/12/2024</td>
+                                    <td>Wednesday</td>
                                 </tr>
                                 <tr>
                                     <th>4</th>
@@ -73,7 +73,7 @@ export default function Timetable() {
                                     <td>Quantum Mechanics</td>
                                     <td>4:00 PM - 5:30 PM</td>
                                     <td>Room 404</td>
-                                    <td>5/12/2024</td>
+                                    <td>Thursday</td>
                                 </tr>
                                 <tr>
                                     <th>5</th>
@@ -81,7 +81,7 @@ export default function Timetable() {
                                     <td>Organic Chemistry</td>
                                     <td>9:00 AM - 10:30 AM</td>
                                     <td>Room 105</td>
-                                    <td>5/13/2024</td>
+                                    <td>Friday</td>
                                 </tr>
                                 <tr>
                                     <th>6</th>
@@ -89,7 +89,7 @@ export default function Timetable() {
                                     <td>Modern History</td>
                                     <td>11:00 AM - 12:30 PM</td>
                                     <td>Room 206</td>
-                                    <td>5/13/2024</td>
+                                    <td>Friday</td>
                                 </tr>
                             </tbody>
                             <tfoot>
@@ -99,7 +99,7 @@ export default function Timetable() {
                                     <th>Name</th>
                                     <th>Time</th>
                                     <th>Location</th>
-                                    <th>Date</th>
+                                    <th>Day</th>
                                 </tr>
                             </tfoot>
                             
