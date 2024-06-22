@@ -4,28 +4,8 @@ import React, { useEffect, useState } from "react";
 import Header from "@/app/components/Header";
 import { db, auth } from "../firebase"; // Ensure firebase is configured correctly
 import { ref, get } from "firebase/database"; // Import Realtime Database functions
-import { useRouter } from 'next/router'; // Import useRouter from Next.js
+import { useRouter } from 'next/navigation'; // Import useRouter from Next.js
 
-const router = useRouter(); // Initialize useRouter
-
-useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const user = auth.currentUser;
-        if (!user) {
-          router.push('/'); // Redirect to homepage if user is not authenticated
-        } else {
-          console.log("User is authenticated:", user);
-          // Handle authenticated user logic here, such as fetching data
-        }
-      } catch (error) {
-        console.error("Error checking authentication:", error);
-      }
-    };
-  
-    checkAuth();
-  }, [router]); // Include router in dependency array to avoid warnings
-  
 export default function Profile() {
     return (
       <main>
