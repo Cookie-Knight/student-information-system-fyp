@@ -1,25 +1,28 @@
 // Import the necessary Firebase modules
-
 import { initializeApp, getApp, getApps } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getAnalytics } from "firebase/analytics";
+import { getDatabase } from "firebase/database";
 import { getAuth } from "firebase/auth";
 
-// Your Firebase configuration object
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyCpnWTN9gldCcctFplwJe8pHumM08Og6cA",
-  authDomain: "final-year-project-cef3f.firebaseapp.com",
-  projectId: "final-year-project-cef3f",
-  storageBucket: "final-year-project-cef3f.appspot.com",
-  messagingSenderId: "244063019761",
-  appId: "1:244063019761:web:b71801c59b1f7cb0dc3f50",
-  measurementId: "G-HTL26K6Q6P"
+  apiKey: "AIzaSyBMm3JIyzm0olBZmsZadWGxIcJLizWg4WE",
+  authDomain: "student-hub-e22c1.firebaseapp.com",
+  databaseURL: "https://student-hub-e22c1-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "student-hub-e22c1",
+  storageBucket: "student-hub-e22c1.appspot.com",
+  messagingSenderId: "946452848977",
+  appId: "1:946452848977:web:1bac754bc97b83d0597370",
+  measurementId: "G-K051B7KJ86"
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-// Initialize Firestore
-const db = getFirestore(app);
+const analytics = getAnalytics(app);
+
+const db = getDatabase(app);
 
 // Initialize Firebase Auth
 const auth = getAuth(app);

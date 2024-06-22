@@ -2,40 +2,74 @@
 
 import React, { useEffect, useState } from "react";
 import Header from "@/app/components/Header";
-import { db, auth } from "./firebase"; // Assuming you have auth imported from firebase
-import { doc, getDoc } from "firebase/firestore";
+import { db, auth } from "./firebase"; // Ensure firebase is configured correctly
+import { ref, get } from "firebase/database"; // Import Realtime Database functions
 import { useRouter } from 'next/navigation'; // Import useRouter from Next.js
 
 interface StudentData {
   name: string;
-  studentId: string;
+  student_id: string;
   cgpa: string;
+  programme_code: string;
+  group: string;
+}
+
+interface TimetableData {
+  [programme_code: string]: {
+    [group: string]: {
+      [day: string]: {
+        course_code: string;
+        time_start: string;
+        time_end: string;
+        location: string;
+        date: string;
+      }[];
+    };
+  };
 }
 
 const Main: React.FC = () => {
   const [studentData, setStudentData] = useState<StudentData>({
     name: "",
-    studentId: "",
-    cgpa: ""
+    student_id: "",
+    cgpa: "",
+    programme_code: "", // Add programme_code to state
+    group: "" // Add group to state
   });
-  const router = useRouter(); // Initialize useRouter
+  const [timetable, setTimetable] = useState<TimetableData>({});
   
+  const router = useRouter(); // Initialize useRouter
+
   useEffect(() => {
+    const fetchStudentData = async (userId: string) => {
+      const userRef = ref(db, `Student/${userId}`);
+      const snapshot = await get(userRef);
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        console.log("Fetched student data:", data);
+        setStudentData({
+          name: data.Name,
+          student_id: data.student_id,
+          cgpa: data.CGPA,
+          programme_code: data.Programme_Code,
+          group: data.Group
+        });
+
+        const timetableRef = ref(db, `Timetable/${data.Programme_Code}`);
+        const timetableSnapshot = await get(timetableRef);
+        if (timetableSnapshot.exists()) {
+          setTimetable(timetableSnapshot.val());
+        }
+      }
+    };
+
     const checkAuth = async () => {
       try {
         const user = auth.currentUser;
         if (!user) {
           router.push('/'); // Redirect to '/' if user is not authenticated
         } else {
-          const docRef = doc(db, "students", user.uid);
-          const docSnap = await getDoc(docRef);
-
-          if (docSnap.exists()) {
-            const data = docSnap.data() as StudentData;
-            setStudentData(data);
-          } else {
-            console.log("No such document!");
-          }
+          await fetchStudentData(user.uid);
         }
       } catch (error) {
         console.error("Error fetching document: ", error);
@@ -43,6 +77,7 @@ const Main: React.FC = () => {
     };
 
     checkAuth();
+
   }, []); // Empty dependency array ensures useEffect runs only once
 
   return (
@@ -86,7 +121,7 @@ const Main: React.FC = () => {
               </svg>
             </div>
             <div className="stat-title">Student ID</div>
-            <div className="stat-value text-secondary">{studentData.studentId}</div>
+            <div className="stat-value text-secondary">{studentData.student_id}</div>
           </div>
 
           <div className="stat">
@@ -104,74 +139,30 @@ const Main: React.FC = () => {
             <table className="table table-xs">
               <thead>
                 <tr>
-                  <th></th>
-                  <th>Programme Code</th>
-                  <th>Name</th>
-                  <th>Time</th>
+                  <th>No.</th>
+                  <th>Course Code</th>
+                  <th>Starting Time</th>
+                  <th>Ending Time</th>
                   <th>Location</th>
                   <th>Date</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <th>1</th>
-                  <td>ENG101</td>
-                  <td>English Literature</td>
-                  <td>9:00 AM - 10:30 AM</td>
-                  <td>Room 101</td>
-                  <td>5/12/2024</td>
-                </tr>
-                <tr>
-                  <th>2</th>
-                  <td>MTH202</td>
-                  <td>Advanced Calculus</td>
-                  <td>11:00 AM - 12:30 PM</td>
-                  <td>Room 202</td>
-                  <td>5/12/2024</td>
-                </tr>
-                <tr>
-                  <th>3</th>
-                  <td>CSC303</td>
-                  <td>Data Structures</td>
-                  <td>2:00 PM - 3:30 PM</td>
-                  <td>Room 303</td>
-                  <td>5/12/2024</td>
-                </tr>
-                <tr>
-                  <th>4</th>
-                  <td>PHY404</td>
-                  <td>Quantum Mechanics</td>
-                  <td>4:00 PM - 5:30 PM</td>
-                  <td>Room 404</td>
-                  <td>5/12/2024</td>
-                </tr>
-                <tr>
-                  <th>5</th>
-                  <td>CHE105</td>
-                  <td>Organic Chemistry</td>
-                  <td>9:00 AM - 10:30 AM</td>
-                  <td>Room 105</td>
-                  <td>5/13/2024</td>
-                </tr>
-                <tr>
-                  <th>6</th>
-                  <td>HIS206</td>
-                  <td>Modern History</td>
-                  <td>11:00 AM - 12:30 PM</td>
-                  <td>Room 206</td>
-                  <td>5/13/2024</td>
-                </tr>
+                {studentData.programme_code && studentData.group &&
+                  Object.keys(timetable[studentData.programme_code]?.[studentData.group] || {}).map((day) => (
+                    timetable[studentData.programme_code][studentData.group][day].map((item, idx) => (
+                      <tr key={idx}>
+                        <th>{idx + 1}</th>
+                        <td>{item.course_code}</td>
+                        <td>{item.time_start}</td>
+                        <td>{item.time_end}</td>
+                        <td>{item.location}</td>
+                        <td>{item.date}</td>
+                      </tr>
+                    ))
+                  ))
+                }
               </tbody>
-              <tfoot>
-                <tr>
-                  <th></th>
-                  <th>Programme Code</th>
-                  <th>Name</th>
-                  <th>Time</th>
-                  <th>Location</th>
-                  <th>Date</th>
-                </tr>
-              </tfoot>
             </table>
           </div>
         </div>
