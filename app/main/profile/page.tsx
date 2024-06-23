@@ -2,10 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import Header from "@/app/components/Header";
-import { db, auth } from "./firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { db, auth, storage } from "./firebase";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 interface StudentData {
   name: string;
@@ -18,6 +19,7 @@ interface StudentData {
   gender: string;
   race: string;
   dob: string;
+  avatarUrl: string;
 }
 
 const Profile: React.FC = () => {
@@ -32,6 +34,7 @@ const Profile: React.FC = () => {
     gender: "",
     race: "",
     dob: "",
+    avatarUrl: "",
   });
 
   const [editableData, setEditableData] = useState<Partial<StudentData>>({
@@ -42,8 +45,10 @@ const Profile: React.FC = () => {
     gender: "",
     race: "",
     dob: "",
+    avatarUrl: "",
   });
-  
+
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null); // State for avatar URL
 
   const router = useRouter();
 
@@ -53,8 +58,10 @@ const Profile: React.FC = () => {
         const docRef = doc(db, "students", uid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setStudentData(docSnap.data() as StudentData);
-          setEditableData(docSnap.data() as StudentData); // Set editable data initially
+          const data = docSnap.data() as StudentData;
+          setStudentData(data);
+          setEditableData(data);
+          setAvatarUrl(data.avatarUrl || null);
         } else {
           console.log("No such document!");
         }
@@ -76,6 +83,62 @@ const Profile: React.FC = () => {
 
     checkAuth();
   }, [router]);
+
+  // Function to resize and crop image to 4:5 aspect ratio
+  const resizeAndCropImage = async (file: File, targetWidth: number, targetHeight: number): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+
+          // Calculate dimensions for the 4:5 aspect ratio
+          const aspectRatio = 4 / 5;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height * aspectRatio) {
+            width = height * aspectRatio;
+          } else {
+            height = width / aspectRatio;
+          }
+
+          canvas.width = targetWidth;
+          canvas.height = targetHeight;
+
+          // Centering and drawing the image on the canvas
+          ctx?.drawImage(
+            img,
+            (img.width - width) / 2,
+            (img.height - height) / 2,
+            width,
+            height,
+            0,
+            0,
+            targetWidth,
+            targetHeight
+          );
+
+          // Convert canvas to Blob and resolve the promise
+          canvas.toBlob((blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error("Failed to convert canvas to Blob"));
+            }
+          }, file.type);
+        };
+      };
+      reader.onerror = (error) => {
+        reject(error);
+      };
+    });
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -107,14 +170,48 @@ const Profile: React.FC = () => {
     }
   };
 
-  return (
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const user = auth.currentUser;
+    if (!user) {
+      console.error("User is not authenticated");
+      return;
+    }
+
+    try {
+      // Resize and crop image to a 4:5 aspect ratio
+      const croppedBlob = await resizeAndCropImage(file, 400, 500); // Example dimensions: 400x500
+
+      // Upload the cropped image to Firebase Storage
+      const storageRef = ref(storage, `avatars/${user.uid}/${file.name}`);
+      const snapshot = await uploadBytes(storageRef, croppedBlob);
+      const downloadUrl = await getDownloadURL(snapshot.ref);
+
+      // Update avatarUrl in Firestore
+      const userDocRef = doc(db, "students", user.uid);
+      await updateDoc(userDocRef, {
+        avatarUrl: downloadUrl // Use type assertion to include avatarUrl
+      } as Partial<StudentData>); // Type assertion here to resolve TypeScript error
+
+      setAvatarUrl(downloadUrl);
+      alert("Avatar uploaded successfully!");
+    } catch (error) {
+      console.error("Error uploading avatar: ", error);
+      alert("Failed to upload avatar. Please try again.");
+    }
+  };
+
+  
+  return  (
     <main>
       <Header />
       <div className="flex flex-col p-4 lg:flex-row">
         <div className="card w-96 bg-base-300 shadow-xl">
           <figure>
             <img
-              src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"
+              src={avatarUrl || 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg'}
               alt="Avatar"
             />
           </figure>
@@ -211,7 +308,14 @@ const Profile: React.FC = () => {
             onChange={handleInputChange}
           />
 
-          <button className="btn" onClick={handleSubmit}>
+          {/* File upload input */}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileUpload}
+          />
+
+          <button className="btn mt-4" onClick={handleSubmit}>
             Save
           </button>
         </div>
