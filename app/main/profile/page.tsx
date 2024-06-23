@@ -182,8 +182,8 @@ const Profile: React.FC = () => {
 
     try {
       // Resize and crop image to a 4:5 aspect ratio
-      const croppedBlob = await resizeAndCropImage(file, 400, 500); // Example dimensions: 400x500
-
+      const croppedBlob = await resizeAndCropImage(file, 400, 400); 
+      
       // Upload the cropped image to Firebase Storage
       const storageRef = ref(storage, `avatars/${user.uid}/${file.name}`);
       const snapshot = await uploadBytes(storageRef, croppedBlob);
