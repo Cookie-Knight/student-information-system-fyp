@@ -74,7 +74,7 @@ export default function SubjectListing() {
           (semester) => semester.id === semesterId
         );
         if (selectedSemesterData) {
-          setSubjects(selectedSemesterData.subjects);
+          setSubjects(selectedSemesterData.subjects || []);
         } else {
           setSubjects([]);
         }
@@ -147,24 +147,28 @@ export default function SubjectListing() {
 
             <div className="grid h-95 card bg-base-300 p-4 ml-4 mr-4 mb-4 mt-4 rounded-box">
               <div className="overflow-x-auto">
-                <table className="table">
-                  <thead>
-                    <tr>
-                      <th>Subject Code</th>
-                      <th>Subject Name</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {subjects.map((subject) => (
-                      <tr key={subject.code}>
-                        <td>{subject.code}</td>
-                        <td>{subject.name}</td>
-                        <td>{subject.status}</td>
+                {subjects.length > 0 ? (
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th>Subject Code</th>
+                        <th>Subject Name</th>
+                        <th>Status</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {subjects.map((subject) => (
+                        <tr key={subject.code}>
+                          <td>{subject.code}</td>
+                          <td>{subject.name}</td>
+                          <td>{subject.status}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <p className="text-center p-4">No subjects found for this semester.</p>
+                )}
               </div>
             </div>
           </>

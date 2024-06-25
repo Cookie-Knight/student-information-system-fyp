@@ -1,126 +1,196 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Header from "@/app/components/Header";
 import { db, auth } from "../firebase"; // Ensure firebase is configured correctly
-import { ref, get } from "firebase/database"; // Import Realtime Database functions
+import { collection, getDocs, doc, getDoc, query, where } from "firebase/firestore"; // Firestore functions
+import { onAuthStateChanged, User } from "firebase/auth"; // Import User from firebase/auth
 import { useRouter } from 'next/navigation'; // Import useRouter from Next.js
 
-export default function Timetable() {
-    return (
-        <main>
-            <Header />
-            
-            <div className="flex flex-col w-full">
-            <div className="stats stats-vertical lg:stats-horizontal p-4 ml-4 mr-4 mb-4 mt-4 shadow">
-  
-  <div className="stat">
-    <div className="stat-title">Semester</div>
-    <div className="stat-value text-lg ">5</div>
-  </div>
-  
-  <div className="stat">
-    <div className="stat-title">Semester Period</div>
-    <div className="stat-value text-lg ">15-APR-2024 - 06-AUG-2024</div>
-  </div>
-  
-  <div className="stat">
-    <div className="stat-title">Printed Date</div>
-    <div className="stat-value text-lg ">29-MAY-2024 7:51:30 PM</div>
-  </div>
-  
-  </div>
-                
-                <div className="divider text-slate-400">The following is the scheduled classes information. Information may be subjected to changes.</div>
-  
-                <div className="grid h-95 card bg-base-300 p-4 ml-4 mr-4 mb-4 mt-4 rounded-box">
-                    <div className="overflow-x-auto">
-                        <table className="table table-xs">
-  
-                        
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th>Programme Code</th>
-                                    <th>Name</th>
-                                    <th>Time</th>
-                                    <th>Location</th>
-                                    <th>Day</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                    <th>1</th>
-                                    <td>ENG101</td>
-                                    <td>English Literature</td>
-                                    <td>9:00 AM - 10:30 AM</td>
-                                    <td>Room 101</td>
-                                    <td>Monday</td>
-                                </tr>
-                                <tr>
-                                    <th>2</th>
-                                    <td>MTH202</td>
-                                    <td>Advanced Calculus</td>
-                                    <td>11:00 AM - 12:30 PM</td>
-                                    <td>Room 202</td>
-                                    <td>Tuesday</td>
-                                </tr>
-                                <tr>
-                                    <th>3</th>
-                                    <td>CSC303</td>
-                                    <td>Data Structures</td>
-                                    <td>2:00 PM - 3:30 PM</td>
-                                    <td>Room 303</td>
-                                    <td>Wednesday</td>
-                                </tr>
-                                <tr>
-                                    <th>4</th>
-                                    <td>PHY404</td>
-                                    <td>Quantum Mechanics</td>
-                                    <td>4:00 PM - 5:30 PM</td>
-                                    <td>Room 404</td>
-                                    <td>Thursday</td>
-                                </tr>
-                                <tr>
-                                    <th>5</th>
-                                    <td>CHE105</td>
-                                    <td>Organic Chemistry</td>
-                                    <td>9:00 AM - 10:30 AM</td>
-                                    <td>Room 105</td>
-                                    <td>Friday</td>
-                                </tr>
-                                <tr>
-                                    <th>6</th>
-                                    <td>HIS206</td>
-                                    <td>Modern History</td>
-                                    <td>11:00 AM - 12:30 PM</td>
-                                    <td>Room 206</td>
-                                    <td>Friday</td>
-                                </tr>
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <th></th>
-                                    <th>Programme Code</th>
-                                    <th>Name</th>
-                                    <th>Time</th>
-                                    <th>Location</th>
-                                    <th>Day</th>
-                                </tr>
-                            </tfoot>
-                            
-                        </table>
-                        
-                    </div>
-                </div>
+type Lecture = {
+  programmeCode: string;
+  name: string;
+  time: string;
+  location: string;
+  day: string;
+  semester: number;
+};
 
-                <div className="join justify-center">
-                <button className="join-item btn">«</button>
-                <button className="join-item btn">Page 1</button>
-                <button className="join-item btn">»</button>
+type SemesterType = {
+  semesterNumber: number;
+  subjects: string[];
+};
+
+type CourseType = {
+  id: string;
+  name: string;
+  semesters: SemesterType[];
+};
+
+export default function Timetable() {
+  const [user, setUser] = useState<User | null>(null); // Define user state to handle User or null types
+  const [courses, setCourses] = useState<CourseType[]>([]);
+  const [selectedCourse, setSelectedCourse] = useState<CourseType | null>(null);
+  const [selectedSemester, setSelectedSemester] = useState<number | null>(null);
+  const [timetable, setTimetable] = useState<Lecture[]>([]);
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+        fetchUserCourses(user.uid);
+      } else {
+        setUser(null);
+        router.push('/login'); // Redirect to login page if no user is logged in
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const fetchUserCourses = async (userId: string) => {
+    try {
+      const userDoc = await getDoc(doc(db, "students", userId));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        const userCourses = userData.courses || [];
+        const coursesList = [];
+
+        for (const courseId of userCourses) {
+          const courseDoc = await getDoc(doc(db, "courses", courseId));
+          if (courseDoc.exists()) {
+            coursesList.push({ id: courseDoc.id, ...courseDoc.data() });
+          }
+        }
+
+        setCourses(coursesList as CourseType[]);
+      }
+    } catch (error) {
+      console.error("Error fetching user courses: ", error);
+    }
+  };
+
+  const handleSemesterChange = useCallback(
+    (semesterNumber: number) => {
+      setSelectedSemester(semesterNumber);
+      if (semesterNumber && selectedCourse) {
+        fetchTimetable(selectedCourse.id, semesterNumber);
+      } else {
+        setTimetable([]);
+      }
+    },
+    [selectedCourse]
+  );
+
+  const handleCourseSelect = (courseId: string) => {
+    const selected = courses.find((course) => course.id === courseId) || null;
+    setSelectedCourse(selected);
+    setSelectedSemester(null);
+    setTimetable([]);
+  };
+
+  const fetchTimetable = async (courseId: string, semester: number) => {
+    try {
+      const timetableQuery = query(
+        collection(db, "lectures"),
+        where("courseId", "==", courseId),
+        where("semester", "==", semester)
+      );
+      const querySnapshot = await getDocs(timetableQuery);
+      const timetableData = querySnapshot.docs.map(doc => doc.data() as Lecture);
+      setTimetable(timetableData);
+    } catch (error) {
+      console.error("Error fetching timetable:", error);
+    }
+  };
+
+  return (
+    <main>
+      <Header />
+      <div className="flex flex-col w-full">
+        {user ? (
+          <>
+            {selectedCourse && (
+              <div className="flex justify-between items-center stats stats-vertical lg:stats-horizontal p-4 ml-4 mr-4 mb-4 mt-4 shadow">
+                <div className="flex items-center">
+                  <h2 className="text-lg font-bold">{selectedCourse.name}</h2>
+                  <div className="divider divider-horizontal mx-4"></div>
+                  <label className="form-control w-full max-w-xs">
+                    <div className="label">
+                      <span className="label-text">Select a semester</span>
+                    </div>
+                    <select
+                      className="select select-bordered"
+                      value={selectedSemester || ""}
+                      onChange={(e) => handleSemesterChange(Number(e.target.value))}
+                    >
+                      <option value="">Pick one</option>
+                      {selectedCourse.semesters.map((semester) => (
+                        <option key={semester.semesterNumber} value={semester.semesterNumber}>
+                          Semester {semester.semesterNumber}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
                 </div>
-                
+              </div>
+            )}
+
+            {!selectedCourse && (
+              <div className="flex flex-col items-center stats stats-vertical lg:stats-horizontal p-4 ml-4 mr-4 mb-4 mt-4 shadow">
+                <label className="form-control w-full max-w-xs">
+                  <div className="label">
+                    <span className="label-text">Select a course</span>
+                  </div>
+                  <select
+                    className="select select-bordered"
+                    onChange={(e) => handleCourseSelect(e.target.value)}
+                  >
+                    <option value="">Pick one</option>
+                    {courses.map((course) => (
+                      <option key={course.id} value={course.id}>
+                        {course.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+            )}
+
+            <div className="grid h-95 card bg-base-300 p-4 ml-4 mr-4 mb-4 mt-4 rounded-box">
+              <div className="overflow-x-auto">
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Programme Code</th>
+                      <th>Name</th>
+                      <th>Time</th>
+                      <th>Location</th>
+                      <th>Day</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {timetable.map((classInfo, index) => (
+                      <tr key={index}>
+                        <th>{index + 1}</th>
+                        <td>{classInfo.programmeCode}</td>
+                        <td>{classInfo.name}</td>
+                        <td>{classInfo.time}</td>
+                        <td>{classInfo.location}</td>
+                        <td>{classInfo.day}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-  </main>
-    )
-  }
+          </>
+        ) : (
+          <p className="text-center p-4">Please log in to see your timetable.</p>
+        )}
+      </div>
+    </main>
+  );
+}
