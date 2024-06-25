@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Header from "@/app/components/Header";
-import { db, auth, storage } from "./firebase";
+import { db, auth, storage } from "../firebase";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
@@ -11,7 +11,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 interface StudentData {
   name: string;
   studentId: string;
-  course: string;
+  courses: string;
   currentSemester: string;
   personalEmail: string;
   permanentAddress: string;
@@ -26,7 +26,7 @@ const Profile: React.FC = () => {
   const [studentData, setStudentData] = useState<StudentData>({
     name: "",
     studentId: "",
-    course: "",
+    courses: "",
     currentSemester: "",
     personalEmail: "",
     permanentAddress: "",
@@ -229,7 +229,7 @@ const Profile: React.FC = () => {
               type="text"
               placeholder="Current Course"
               className="input input-bordered w-full max-w-xs"
-              value={studentData.course}
+              value={studentData.courses}
               disabled
             />
             <p>Current Semester</p>

@@ -16,7 +16,7 @@ export default function Home() {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.push('/main'); 
+      router.push('/main/home'); 
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message);

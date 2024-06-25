@@ -1,80 +1,177 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Header from "@/app/components/Header";
-import { db, auth } from "../firebase"; // Ensure firebase is configured correctly
-import { ref, get } from "firebase/database"; // Import Realtime Database functions
-import { useRouter } from 'next/navigation'; // Import useRouter from Next.js
-  
+import { db, auth } from "../firebase"; // Ensure you have Firebase authentication imported
+import { collection, getDocs, doc, getDoc } from "firebase/firestore"; // Firestore functions
+import { onAuthStateChanged, User } from "firebase/auth"; // Import User from firebase/auth
+
+type SubjectType = {
+  code: string;
+  name: string;
+  status: string;
+};
+
+type SemesterType = {
+  id: string;
+  name: string;
+  subjects: SubjectType[];
+};
+
+type CourseType = {
+  id: string;
+  name: string;
+  semesters: SemesterType[];
+};
+
 export default function SubjectListing() {
-    return (
-        <main>
-          <Header />
- <div className="flex flex-col w-full">
+  const [user, setUser] = useState<User | null>(null); // Define user state to handle User or null types
+  const [courses, setCourses] = useState<CourseType[]>([]);
+  const [selectedCourse, setSelectedCourse] = useState<CourseType | null>(null);
+  const [selectedSemester, setSelectedSemester] = useState<string | null>(null);
+  const [subjects, setSubjects] = useState<SubjectType[]>([]);
 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+        fetchUserCourses(user.uid);
+      } else {
+        setUser(null);
+      }
+    });
 
+    return () => unsubscribe();
+  }, []);
 
- <div className="stats stats-vertical lg:stats-horizontal p-4 ml-4 mr-4 mb-4 mt-4 shadow">
-  
- <label className="form-control w-full max-w-xs p-4">
-  <div className="label">
-    <span className="label-text">Select a semester</span>
-  </div>
-  <select className="select select-bordered">
-    <option disabled selected>Pick one</option>
-    <option>Semester One</option>
-    <option>Semester Two</option>
-    <option>Semester Semester Three</option>
-  </select>
-</label>
+  const fetchUserCourses = async (userId: string) => {
+    try {
+      const userDoc = await getDoc(doc(db, "students", userId));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        const userCourses = userData.courses || [];
+        const coursesList = [];
 
-  <div className="stat">
-    <div className="stat-title">Semester Period</div>
-    <div className="stat-value text-lg ">15-APR-2024 - 06-AUG-2024</div>
-  </div>
-  
-  <div className="stat">
-    <div className="stat-title">Printed Date</div>
-    <div className="stat-value text-lg ">29-MAY-2024 7:51:30 PM</div>
-  </div>
-  
-</div>
-          <div className="grid h-95 card bg-base-300 p-4 ml-4 mr-4 mb-4 mt-4 rounded-box">
+        for (const courseId of userCourses) {
+          const courseDoc = await getDoc(doc(db, "courses", courseId));
+          if (courseDoc.exists()) {
+            coursesList.push({ id: courseDoc.id, ...courseDoc.data() });
+          }
+        }
 
-          <div className="overflow-x-auto">
-  <table className="table">
-    {/* head */}
-    <thead>
-      <tr>
-      <th>Subject Code</th>
-      <th>Subject Name</th>
-      <th>Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      {/* row 1 */}
-      <tr>
-        <td>MTH202</td>
-        <td>Linear Algebra</td>
-        <td>Finish</td>
-      </tr>
-      {/* row 2 */}
-      <tr className="hover">
-        <td>PHY405</td>
-        <td>Quantum Mechanics</td>
-        <td>Finish</td>
-      </tr>
-      {/* row 3 */}
-      <tr>
-        <td>ENG301</td>
-        <td>Advanced Writing Techniques</td>
-        <td>Finish</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-</div>
-        </div>
-</main>
-    )
+        setCourses(coursesList as CourseType[]);
+      }
+    } catch (error) {
+      console.error("Error fetching user courses: ", error);
+    }
+  };
+
+  const handleSemesterChange = useCallback(
+    (semesterId: string) => {
+      setSelectedSemester(semesterId);
+      if (semesterId && selectedCourse) {
+        const selectedSemesterData = selectedCourse.semesters.find(
+          (semester) => semester.id === semesterId
+        );
+        if (selectedSemesterData) {
+          setSubjects(selectedSemesterData.subjects);
+        } else {
+          setSubjects([]);
+        }
+      } else {
+        setSubjects([]);
+      }
+    },
+    [selectedCourse]
+  );
+
+  const handleCourseSelect = (courseId: string) => {
+    const selected = courses.find((course) => course.id === courseId) || null;
+    setSelectedCourse(selected);
+    setSelectedSemester(null);
+    setSubjects([]);
+  };
+
+  return (
+    <main>
+      <Header />
+      <div className="flex flex-col w-full">
+        {user ? (
+          <>
+            {selectedCourse && (
+              <div className="flex justify-between items-center stats stats-vertical lg:stats-horizontal p-4 ml-4 mr-4 mb-4 mt-4 shadow">
+                <div className="flex items-center">
+                  <h2 className="text-lg font-bold">{selectedCourse.name}</h2>
+                  <div className="divider divider-horizontal mx-4"></div>
+                  <label className="form-control w-full max-w-xs">
+                    <div className="label">
+                      <span className="label-text">Select a semester</span>
+                    </div>
+                    <select
+                      className="select select-bordered"
+                      value={selectedSemester || ""}
+                      onChange={(e) => handleSemesterChange(e.target.value)}
+                    >
+                      <option value="">Pick one</option>
+                      {selectedCourse.semesters.map((semester) => (
+                        <option key={semester.id} value={semester.id}>
+                          {semester.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+              </div>
+            )}
+
+            {!selectedCourse && (
+              <div className="flex flex-col items-center stats stats-vertical lg:stats-horizontal p-4 ml-4 mr-4 mb-4 mt-4 shadow">
+                <label className="form-control w-full max-w-xs">
+                  <div className="label">
+                    <span className="label-text">Select a course</span>
+                  </div>
+                  <select
+                    className="select select-bordered"
+                    onChange={(e) => handleCourseSelect(e.target.value)}
+                  >
+                    <option value="">Pick one</option>
+                    {courses.map((course) => (
+                      <option key={course.id} value={course.id}>
+                        {course.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+            )}
+
+            <div className="grid h-95 card bg-base-300 p-4 ml-4 mr-4 mb-4 mt-4 rounded-box">
+              <div className="overflow-x-auto">
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th>Subject Code</th>
+                      <th>Subject Name</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {subjects.map((subject) => (
+                      <tr key={subject.code}>
+                        <td>{subject.code}</td>
+                        <td>{subject.name}</td>
+                        <td>{subject.status}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        ) : (
+          <p className="text-center p-4">Please log in to see your courses.</p>
+        )}
+      </div>
+    </main>
+  );
 }

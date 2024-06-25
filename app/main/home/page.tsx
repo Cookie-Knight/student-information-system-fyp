@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Header from "@/app/components/Header";
-import { db, auth } from "./firebase"; // Assuming you have auth imported from firebase
+import { db, auth } from "../firebase"; // Assuming you have auth imported from firebase
 import { doc, getDoc } from "firebase/firestore";
 import { useRouter } from 'next/navigation'; // Import useRouter from Next.js
 
