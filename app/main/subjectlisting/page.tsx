@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import Header from "@/app/components/Header";
-import { db, auth } from "../firebase"; // Ensure you have Firebase authentication imported
-import { collection, getDocs, doc, getDoc } from "firebase/firestore"; // Firestore functions
-import { onAuthStateChanged, User } from "firebase/auth"; // Import User from firebase/auth
+import { db, auth } from "../firebase";
+import { collection, getDocs, doc, getDoc } from "firebase/firestore";
+import { onAuthStateChanged, User } from "firebase/auth";
 
 type SubjectType = {
   code: string;
@@ -25,7 +25,7 @@ type CourseType = {
 };
 
 export default function SubjectListing() {
-  const [user, setUser] = useState<User | null>(null); // Define user state to handle User or null types
+  const [user, setUser] = useState<User | null>(null);
   const [courses, setCourses] = useState<CourseType[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<CourseType | null>(null);
   const [selectedSemester, setSelectedSemester] = useState<string | null>(null);
@@ -100,9 +100,10 @@ export default function SubjectListing() {
           <>
             {selectedCourse && (
               <div className="flex justify-between items-center stats stats-vertical lg:stats-horizontal p-4 ml-4 mr-4 mb-4 mt-4 shadow">
-                <div className="flex items-center">
+                <div className="stat">
                   <h2 className="text-lg font-bold">{selectedCourse.name}</h2>
-                  <div className="divider divider-horizontal mx-4"></div>
+                </div>
+                <div className="stat">
                   <label className="form-control w-full max-w-xs">
                     <div className="label">
                       <span className="label-text">Select a semester</span>
@@ -125,23 +126,25 @@ export default function SubjectListing() {
             )}
 
             {!selectedCourse && (
-              <div className="flex flex-col items-center stats stats-vertical lg:stats-horizontal p-4 ml-4 mr-4 mb-4 mt-4 shadow">
-                <label className="form-control w-full max-w-xs">
-                  <div className="label">
-                    <span className="label-text">Select a course</span>
-                  </div>
-                  <select
-                    className="select select-bordered"
-                    onChange={(e) => handleCourseSelect(e.target.value)}
-                  >
-                    <option value="">Pick one</option>
-                    {courses.map((course) => (
-                      <option key={course.id} value={course.id}>
-                        {course.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+              <div className="flex justify-between items-center stats stats-vertical lg:stats-horizontal p-4 ml-4 mr-4 mb-4 mt-4 shadow">
+                <div className="stat">
+                  <label className="form-control w-full max-w-xs">
+                    <div className="label">
+                      <span className="label-text">Select a course</span>
+                    </div>
+                    <select
+                      className="select select-bordered"
+                      onChange={(e) => handleCourseSelect(e.target.value)}
+                    >
+                      <option value="">Pick one</option>
+                      {courses.map((course) => (
+                        <option key={course.id} value={course.id}>
+                          {course.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
               </div>
             )}
 

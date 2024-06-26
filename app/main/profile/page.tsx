@@ -98,7 +98,7 @@ const Profile: React.FC = () => {
           const ctx = canvas.getContext("2d");
 
           // Calculate dimensions for the 4:5 aspect ratio
-          const aspectRatio = 4 / 5;
+          const aspectRatio = 4 / 4;
           let width = img.width;
           let height = img.height;
 
