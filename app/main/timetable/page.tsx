@@ -111,50 +111,58 @@ export default function Timetable() {
       <div className="flex flex-col w-full">
         {user ? (
           <>
-            {selectedCourse && (
+            {selectedCourse ? (
               <div className="flex justify-between items-center stats stats-vertical lg:stats-horizontal p-4 ml-4 mr-4 mb-4 mt-4 shadow">
                 <div className="flex items-center">
-                  <h2 className="text-lg font-bold">{selectedCourse.name}</h2>
-                  <div className="divider divider-horizontal mx-4"></div>
+                  <div className="p-4">
+                    <h2 className="text-lg font-bold">
+                      {selectedCourse.name}
+                    </h2>
+                  </div>
+                  <div className="divider divider-horizontal mx-4"style={{ marginLeft: "310px" }}>
+                  </div>
+                  <div className="divider"></div>
+                  <div className="p-4">
+                    <label className="form-control w-full max-w-xs"style={{ marginLeft: "400px" }}>
+                      <div className="label">
+                        <span className="label-text">Select a semester</span>
+                      </div>
+                      <select
+                        className="select select-bordered"
+                        value={selectedSemester || ""}
+                        onChange={(e) => handleSemesterChange(Number(e.target.value))}
+                      >
+                        <option value="">Pick one</option>
+                        {selectedCourse.semesters.map((semester) => (
+                          <option key={semester.semesterNumber} value={semester.semesterNumber}>
+                            Semester {semester.semesterNumber}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex justify-between items-center stats stats-vertical lg:stats-horizontal p-4 ml-4 mr-4 mb-4 mt-4 shadow">
+                <div className="stat">
                   <label className="form-control w-full max-w-xs">
                     <div className="label">
-                      <span className="label-text">Select a semester</span>
+                      <span className="label-text">Select a course</span>
                     </div>
                     <select
                       className="select select-bordered"
-                      value={selectedSemester || ""}
-                      onChange={(e) => handleSemesterChange(Number(e.target.value))}
+                      onChange={(e) => handleCourseSelect(e.target.value)}
                     >
                       <option value="">Pick one</option>
-                      {selectedCourse.semesters.map((semester) => (
-                        <option key={semester.semesterNumber} value={semester.semesterNumber}>
-                          Semester {semester.semesterNumber}
+                      {courses.map((course) => (
+                        <option key={course.id} value={course.id}>
+                          {course.name}
                         </option>
                       ))}
                     </select>
                   </label>
                 </div>
-              </div>
-            )}
-
-            {!selectedCourse && (
-              <div className="flex flex-col items-center stats stats-vertical lg:stats-horizontal p-4 ml-4 mr-4 mb-4 mt-4 shadow">
-                <label className="form-control w-full max-w-xs">
-                  <div className="label">
-                    <span className="label-text">Select a course</span>
-                  </div>
-                  <select
-                    className="select select-bordered"
-                    onChange={(e) => handleCourseSelect(e.target.value)}
-                  >
-                    <option value="">Pick one</option>
-                    {courses.map((course) => (
-                      <option key={course.id} value={course.id}>
-                        {course.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
               </div>
             )}
 

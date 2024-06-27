@@ -101,17 +101,21 @@ export default function SubjectListing() {
             {selectedCourse && (
               <div className="flex justify-between items-center stats stats-vertical lg:stats-horizontal p-4 ml-4 mr-4 mb-4 mt-4 shadow">
                 <div className="stat">
-                  <h2 className="text-lg font-bold">{selectedCourse.name}</h2>
+                  <h2 className="text-lg font-bold"
+                  style={{ marginLeft: "20px" }}>{selectedCourse.name}</h2>
                 </div>
                 <div className="stat">
                   <label className="form-control w-full max-w-xs">
-                    <div className="label">
+                    <div className="label"style={{ marginLeft: "190px" }}
+                    >
                       <span className="label-text">Select a semester</span>
                     </div>
                     <select
                       className="select select-bordered"
                       value={selectedSemester || ""}
                       onChange={(e) => handleSemesterChange(e.target.value)}
+                      style={{ marginRight: "-300px", marginLeft: "190px" }}
+
                     >
                       <option value="">Pick one</option>
                       {selectedCourse.semesters.map((semester) => (
