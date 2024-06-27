@@ -115,25 +115,34 @@ export default function ExamTimetable() {
             {selectedCourse && (
               <div className="flex justify-between items-center stats stats-vertical lg:stats-horizontal p-4 ml-4 mr-4 mb-4 mt-4 shadow">
                 <div className="flex items-center">
-                  <h2 className="text-lg font-bold">{selectedCourse.name}</h2>
-                  <div className="divider divider-horizontal mx-4"></div>
-                  <label className="form-control w-full max-w-xs">
-                    <div className="label">
-                      <span className="label-text">Select a semester</span>
-                    </div>
-                    <select
-                      className="select select-bordered"
-                      value={selectedSemester || ""}
-                      onChange={(e) => handleSemesterChange(Number(e.target.value))}
-                    >
-                      <option value="">Pick one</option>
-                      {selectedCourse.semesters.map((semester) => (
-                        <option key={semester.semesterNumber} value={semester.semesterNumber}>
-                          Semester {semester.semesterNumber}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                  <div className="p-4">
+                    <h2 className="text-lg font-bold">
+                      {selectedCourse.name}
+                    </h2>
+                  </div>
+                  <div className="divider divider-horizontal mx-4"
+                  style={{ marginLeft: "330px" }}></div>
+                  <div className="p-4">
+                    <label className="form-control w-full max-w-xs">
+                      <div className="label">
+                        <span className="label-text"
+                        style={{ marginRight: "-300px", marginLeft: "200px" }}>Select a semester</span>
+                      </div>
+                      <select
+                        className="select select-bordered"
+                        value={selectedSemester || ""}
+                        onChange={(e) => handleSemesterChange(Number(e.target.value))}
+                        style={{ marginRight: "-480px", marginLeft: "200px" }}
+                      >
+                        <option value="">Pick one</option>
+                        {selectedCourse.semesters.map((semester) => (
+                          <option key={semester.semesterNumber} value={semester.semesterNumber}>
+                            Semester {semester.semesterNumber}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
                 </div>
               </div>
             )}
@@ -147,6 +156,7 @@ export default function ExamTimetable() {
                   <select
                     className="select select-bordered"
                     onChange={(e) => handleCourseSelect(e.target.value)}
+                    style={{ marginLeft: "0px" }} // Adjust this value to shift the dropdown box to the left or right
                   >
                     <option value="">Pick one</option>
                     {courses.map((course) => (

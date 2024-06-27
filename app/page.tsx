@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from './firebase'; // Adjust the path according to your file structure
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 
 export default function Home() {
   const [email, setEmail] = useState('');
@@ -11,6 +11,14 @@ export default function Home() {
   const [error, setError] = useState('');
 
   const router = useRouter();
+
+  // Log out the user when the component mounts
+  useEffect(() => {
+    const logOut = async () => {
+      await signOut(auth);
+    };
+    logOut();
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
