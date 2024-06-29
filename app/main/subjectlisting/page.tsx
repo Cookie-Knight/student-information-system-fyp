@@ -114,7 +114,7 @@ export default function SubjectListing() {
                       className="select select-bordered"
                       value={selectedSemester || ""}
                       onChange={(e) => handleSemesterChange(e.target.value)}
-                      style={{ marginRight: "-300px", marginLeft: "190px" }}
+                      style={{ marginRight: "-200px", marginLeft: "190px" }}
 
                     >
                       <option value="">Pick one</option>

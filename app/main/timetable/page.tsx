@@ -2,10 +2,10 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import Header from "@/app/components/Header";
-import { db, auth } from "../firebase"; // Ensure firebase is configured correctly
-import { collection, getDocs, doc, getDoc, query, where } from "firebase/firestore"; // Firestore functions
-import { onAuthStateChanged, User } from "firebase/auth"; // Import User from firebase/auth
-import { useRouter } from 'next/navigation'; // Import useRouter from Next.js
+import { db, auth } from "../firebase";
+import { collection, getDocs, doc, getDoc, query, where } from "firebase/firestore";
+import { onAuthStateChanged, User } from "firebase/auth";
+import { useRouter } from 'next/navigation';
 
 type Lecture = {
   programmeCode: string;
@@ -28,7 +28,7 @@ type CourseType = {
 };
 
 export default function Timetable() {
-  const [user, setUser] = useState<User | null>(null); // Define user state to handle User or null types
+  const [user, setUser] = useState<User | null>(null);
   const [courses, setCourses] = useState<CourseType[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<CourseType | null>(null);
   const [selectedSemester, setSelectedSemester] = useState<number | null>(null);
@@ -42,7 +42,7 @@ export default function Timetable() {
         fetchUserCourses(user.uid);
       } else {
         setUser(null);
-        router.push('/login'); // Redirect to login page if no user is logged in
+        router.push('/login');
       }
     });
 
@@ -115,15 +115,11 @@ export default function Timetable() {
               <div className="flex justify-between items-center stats stats-vertical lg:stats-horizontal p-4 ml-4 mr-4 mb-4 mt-4 shadow">
                 <div className="flex items-center">
                   <div className="p-4">
-                    <h2 className="text-lg font-bold">
-                      {selectedCourse.name}
-                    </h2>
+                    <h2 className="text-lg font-bold">{selectedCourse.name}</h2>
                   </div>
-                  <div className="divider divider-horizontal mx-4"style={{ marginLeft: "310px" }}>
-                  </div>
-                  <div className="divider"></div>
+                  <div className="divider divider-horizontal mx-4" style={{ marginLeft: "200px" }}></div>
                   <div className="p-4">
-                    <label className="form-control w-full max-w-xs"style={{ marginLeft: "400px" }}>
+                    <label className="form-control w-full max-w-xs" style={{ marginLeft: "200px" }}>
                       <div className="label">
                         <span className="label-text">Select a semester</span>
                       </div>
