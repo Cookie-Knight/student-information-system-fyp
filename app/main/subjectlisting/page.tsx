@@ -174,7 +174,7 @@ export default function SubjectListing() {
                     </tbody>
                   </table>
                 ) : (
-                  <p className="text-center p-4">No subjects found for this semester.</p>
+                  <p className="text-center p-4">Select a semester to view subjects.</p>
                 )}
               </div>
             </div>

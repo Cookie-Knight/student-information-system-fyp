@@ -189,7 +189,7 @@ export default function ExamTimetable() {
                     </tbody>
                   </table>
                 ) : (
-                  <p className="text-center p-4">No exams found for this semester.</p>
+                  <p className="text-center p-4">Select a semester to view exam timetable.</p>
                 )}
               </div>
             </div>
