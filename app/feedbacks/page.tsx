@@ -1,19 +1,16 @@
-"use client";
+'use client';
 
 import React, { useEffect, useState } from "react";
 import Header from "@/app/components/Header";
-import { db, auth } from "../firebase"; // Ensure firebase is configured correctly
-import { ref, get } from "firebase/database"; // Import Realtime Database functions
-import { useRouter } from 'next/navigation'; // Import useRouter from Next.js
-  
+
 export default function Feedbacks() {
     return (
         <main>
             <Header />
-            <div className="flex flex-col w-full">
-
+            <div className="flex flex-col min-h-screen min-w-screen">
+            <div className="grid h-20 card bg-base-300 p-4 ml-4 mr-4 mb-4 mt-4 rounded-box font-bold text-2xl place-content-evenly">Feedback Forms</div> 
                 
-                <div className="divider txt-slaete-400">Feedback Form</div>
+                <div className="divider txt-slaete-400">Write a feedback to us on what can be improve on CampuSphere System.</div>
   
                 <div className="grid h-95 card bg-base-300 p-4 ml-4 mr-4 mb-4 mt-4 rounded-box">
                     <div className="overflow-x-auto">

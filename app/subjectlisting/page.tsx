@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import Header from "@/app/components/Header";
-import { db, auth } from "../firebase";
-import { collection, getDocs, doc, getDoc } from "firebase/firestore";
+import { useRouter } from 'next/navigation';
+import Header from "../components/Header";
+import Loading from "../components/Loading";
+import { db, auth } from "@/lib/firebase/firebaseConfig";
+import { doc, getDoc } from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
 
 type SubjectType = {
@@ -30,6 +32,7 @@ export default function SubjectListing() {
   const [selectedCourse, setSelectedCourse] = useState<CourseType | null>(null);
   const [selectedSemester, setSelectedSemester] = useState<string | null>(null);
   const [subjects, setSubjects] = useState<SubjectType[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -38,6 +41,7 @@ export default function SubjectListing() {
         fetchUserCourses(user.uid);
       } else {
         setUser(null);
+        router.push('/login');
       }
     });
 
@@ -95,7 +99,7 @@ export default function SubjectListing() {
   return (
     <main>
       <Header />
-      <div className="flex flex-col w-full">
+      <div className="flex flex-col min-h-screen min-w-screen">
         {user ? (
           <>
             {selectedCourse && (
@@ -114,7 +118,7 @@ export default function SubjectListing() {
                       className="select select-bordered"
                       value={selectedSemester || ""}
                       onChange={(e) => handleSemesterChange(e.target.value)}
-                      style={{ marginRight: "-200px", marginLeft: "190px" }}
+                      style={{ marginRight: "-300px", marginLeft: "190px" }}
 
                     >
                       <option value="">Pick one</option>
@@ -174,13 +178,13 @@ export default function SubjectListing() {
                     </tbody>
                   </table>
                 ) : (
-                  <p className="text-center p-4">Select a semester to view subjects.</p>
+                  <p className="text-center p-4">No subjects found for this semester.</p>
                 )}
               </div>
             </div>
           </>
         ) : (
-          <p className="text-center p-4">Please log in to see your courses.</p>
+          <Loading />
         )}
       </div>
     </main>

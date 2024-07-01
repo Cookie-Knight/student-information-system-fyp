@@ -1,9 +1,9 @@
 // Import Firebase Firestore methods and db instance
-import { db } from './firebase';
+import { db } from './firebaseConfig';
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
 
 // Function to fetch a single document by document ID
-export const fetchDocument = async (collectionName, documentId) => {
+export const fetchDocument = async (collectionName : any, documentId : any) => {
   try {
     const docRef = doc(db, collectionName, documentId);
     const docSnap = await getDoc(docRef);
@@ -21,12 +21,12 @@ export const fetchDocument = async (collectionName, documentId) => {
 };
 
 // Function to fetch all documents in a collection
-export const fetchCollection = async (collectionName) => {
+export const fetchCollection = async (collectionName : any) => {
   try {
     const collectionRef = collection(db, collectionName);
     const querySnapshot = await getDocs(collectionRef);
     
-    const documents = [];
+    const documents: { id: string; }[] = [];
     querySnapshot.forEach((doc) => {
       documents.push({ id: doc.id, ...doc.data() });
     });

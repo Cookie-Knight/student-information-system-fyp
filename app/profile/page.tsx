@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
 import React, { useEffect, useState } from "react";
 import Header from "@/app/components/Header";
-import { db, auth, storage } from "../firebase";
+import { db, auth, storage } from "@/lib/firebase/firebaseConfig";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
@@ -207,118 +207,111 @@ const Profile: React.FC = () => {
   return  (
     <main>
       <Header />
-      <div className="flex flex-col p-4 lg:flex-row">
-        <div className="card w-96 bg-base-300 shadow-xl">
+      <div className="min-h-screen min-w-screen">
+      <div className="grid h-20 card bg-base-300 p-4 ml-4 mr-4 mt-4 rounded-box font-bold text-2xl place-content-evenly">Profile Information</div> 
+      <div className="divider"></div> 
+      
+        <div className="flex flex-col p-4 lg:flex-row">
+        <div className="card h-fit w-auto bg-base-300 shadow-xl">
           <figure>
-            <img
-              src={avatarUrl || 'https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg'}
+            <img className="rounded-box"
+              src={avatarUrl || 'https://static.vecteezy.com/system/resources/previews/017/800/528/non_2x/user-simple-flat-icon-illustration-vector.jpg'}
               alt="Avatar"
             />
           </figure>
           <div className="card-body">
-            <p> Student ID</p>
-            <input
-              type="text"
-              placeholder="Student ID"
-              className="input input-bordered w-full max-w-xs"
-              value={studentData.studentId}
-              disabled
-            />
-            <p>Course</p>
-            <input
-              type="text"
-              placeholder="Current Course"
-              className="input input-bordered w-full max-w-xs"
-              value={studentData.courses}
-              disabled
-            />
-            <p>Current Semester</p>
-            <input
-              type="text"
-              placeholder="Current Semester"
-              className="input input-bordered w-full max-w-xs"
-              value={studentData.currentSemester}
-              disabled
-            />
+          <label className="form-control w-full max-w-xs">
+            <div className="label">
+            <span className="label-text-alt text-sm">Student Identification Number</span>
+            </div>
+            <input type="text" placeholder="Student ID" className="input input-bordered w-full max-w-xs" value={studentData.studentId} disabled/>  
+          </label>
+
+          <label className="form-control w-full max-w-xs">
+            <div className="label">
+            <span className="label-text-alt text-sm">Course Name</span>
+            </div>
+            <input type="text" placeholder="Course" className="input input-bordered w-full max-w-xs" value={studentData.courses} disabled/>  
+          </label>
+
+          <label className="form-control w-full max-w-xs">
+            <div className="label">
+            <span className="label-text-alt text-sm">Current Semester</span>
+            </div>
+            <input type="text" placeholder="Course" className="input input-bordered w-full max-w-xs" value={studentData.currentSemester} disabled/>  
+          </label>
+
           </div>
         </div>
 
-        <div className="card bg-base-300 flex-grow h-fit ml-4 p-5 rounded-box">
-          <p>Full Name</p>
-          <input
-            type="text"
-            name="name"
-            placeholder="Full Name"
-            className="input input-bordered w-full max-w-xs mb-4"
-            value={editableData.name}
-            onChange={handleInputChange}
-          />
-          <p>Personal Email</p>
-          <input
-            type="text"
-            name="personalEmail"
-            placeholder="Personal Email"
-            className="input input-bordered w-full max-w-xs mb-4"
-            value={editableData.personalEmail}
-            onChange={handleInputChange}
-          />
-          <p>Permanent Address</p>
-          <input
-            type="text"
-            name="permanentAddress"
-            placeholder="Permanent Address"
-            className="input input-bordered w-full max-w-xs mb-4"
-            value={editableData.permanentAddress}
-            onChange={handleInputChange}
-          />
-          <p>Identification Number</p>
-          <input
-            type="text"
-            name="identificationNumber"
-            placeholder="Identification Number"
-            className="input input-bordered w-full max-w-xs mb-4"
-            value={editableData.identificationNumber}
-            onChange={handleInputChange}
-          />
-          <p>Gender</p>
-          <input
-            type="text"
-            name="gender"
-            placeholder="Gender"
-            className="input input-bordered w-full max-w-xs mb-4"
-            value={editableData.gender}
-            onChange={handleInputChange}
-          />
-          <p>Race</p>
-          <input
-            type="text"
-            name="race"
-            placeholder="Race"
-            className="input input-bordered w-full max-w-xs mb-4"
-            value={editableData.race}
-            onChange={handleInputChange}
-          />
-          <p>Date of Birth</p>
-          <input
-            type="text"
-            name="dob"
-            placeholder="Date of Birth"
-            className="input input-bordered w-full max-w-xs mb-4"
-            value={editableData.dob}
-            onChange={handleInputChange}
-          />
+        <div className="divider lg:divider-horizontal"></div>
 
-          {/* File upload input */}
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileUpload}
-          />
+        <div className="card bg-base-300 flex-grow p-5 rounded-box">
+
+        <label className="input input-bordered flex items-center gap-2 mb-6">
+            <div className="label">
+            <span className="label-text-alt text-sm">Full Name</span>
+            </div>
+            <input type="text" placeholder="Full Name" className="input input-bordered w-full max-w-xs" value={editableData.name} disabled/>  
+          </label>
+
+          <label className="input input-bordered flex items-center gap-2 mb-6">
+            <div className="label">
+            <span className="label-text-alt text-sm">Personal Email</span>
+            </div>
+            <input type="text" placeholder="Personal Email" value={editableData.personalEmail} onChange={handleInputChange} />  
+          </label>
+
+          <label className="input input-bordered flex items-center gap-2 mb-6">
+            <div className="label">
+            <span className="label-text-alt text-sm">Permenant Address</span>
+            </div>
+            <input type="text" placeholder="Permenant Address" value={editableData.permanentAddress} onChange={handleInputChange} />  
+          </label>
+
+          <label className="input input-bordered flex items-center gap-2 mb-6">
+            <div className="label">
+            <span className="label-text-alt text-sm">Identification Number / Passport ID</span>
+            </div>
+            <input type="text" placeholder="Identification Number" className="input input-bordered w-full max-w-xs" value={editableData.identificationNumber} disabled />  
+          </label>
+
+          <label className="input input-bordered flex items-center gap-2 mb-6">
+            <div className="label">
+            <span className="label-text-alt text-sm">Gender</span>
+            </div>
+            <input type="text" placeholder="Gender" className="input input-bordered w-full max-w-xs" value={editableData.gender} disabled />  
+          </label>
+
+          <label className="input input-bordered flex items-center gap-2 mb-6">
+            <div className="label">
+            <span className="label-text-alt text-sm">Race</span>
+            </div>
+            <input type="text" placeholder="Race" className="input input-bordered w-full max-w-xs" value={editableData.race} disabled />  
+          </label>
+
+          <label className="input input-bordered flex items-center gap-2 mb-6">
+            <div className="label">
+            <span className="label-text-alt text-sm">Date of Birth</span>
+            </div>
+            <input type="text" placeholder="Date of Birth" className="input input-bordered w-full max-w-xs" value={editableData.dob} disabled />  
+          </label>
+
+          <label className="form-control w-full max-w-xs">
+            <div className="label">
+              <span className="label-text text-sm">Upload your profile picture</span>
+            </div>
+            <input type="file" accept="image/*" className="file-input file-input-bordered w-full max-w-xs" onChange={handleFileUpload} />
+            <div className="label">
+
+            </div>
+          </label>
 
           <button className="btn mt-4" onClick={handleSubmit}>
-            Save
+            Comfirm Information Update
           </button>
         </div>
+      </div>
       </div>
     </main>
   );

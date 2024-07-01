@@ -27,5 +27,10 @@ const auth = getAuth(app);
 
 const storage = getStorage(app);
 
+const initFirebase = () => {
+  return app;
+};
+
+
 // Export the initialized services
-export { db, auth, storage };
+export { db, auth, storage, initFirebase };

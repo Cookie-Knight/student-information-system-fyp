@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import Header from "@/app/components/Header";
-import { db } from "../firebase"; // Ensure your Firebase config is here
+import { db } from "@/lib/firebase/firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 import { useRouter } from 'next/navigation';
