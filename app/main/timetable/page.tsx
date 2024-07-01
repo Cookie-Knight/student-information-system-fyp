@@ -117,7 +117,7 @@ export default function Timetable() {
                   <div className="p-4">
                     <h2 className="text-lg font-bold">{selectedCourse.name}</h2>
                   </div>
-                  <div className="divider divider-horizontal mx-4" style={{ marginLeft: "200px" }}></div>
+                  <div className="divider divider-horizontal mx-4" style={{ marginLeft: "350px" }}></div>
                   <div className="p-4">
                     <label className="form-control w-full max-w-xs" style={{ marginLeft: "200px" }}>
                       <div className="label">
@@ -164,30 +164,34 @@ export default function Timetable() {
 
             <div className="grid h-95 card bg-base-300 p-4 ml-4 mr-4 mb-4 mt-4 rounded-box">
               <div className="overflow-x-auto">
-                <table className="table">
-                  <thead>
-                    <tr>
-                      <th></th>
-                      <th>Programme Code</th>
-                      <th>Name</th>
-                      <th>Time</th>
-                      <th>Location</th>
-                      <th>Day</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {timetable.map((classInfo, index) => (
-                      <tr key={index}>
-                        <th>{index + 1}</th>
-                        <td>{classInfo.programmeCode}</td>
-                        <td>{classInfo.name}</td>
-                        <td>{classInfo.time}</td>
-                        <td>{classInfo.location}</td>
-                        <td>{classInfo.day}</td>
+                {timetable.length > 0 ? (
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th></th>
+                        <th>Programme Code</th>
+                        <th>Name</th>
+                        <th>Time</th>
+                        <th>Location</th>
+                        <th>Day</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {timetable.map((classInfo, index) => (
+                        <tr key={index}>
+                          <th>{index + 1}</th>
+                          <td>{classInfo.programmeCode}</td>
+                          <td>{classInfo.name}</td>
+                          <td>{classInfo.time}</td>
+                          <td>{classInfo.location}</td>
+                          <td>{classInfo.day}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <p className="text-center p-4">Select a semester to view subjects.</p>
+                )}
               </div>
             </div>
           </>
