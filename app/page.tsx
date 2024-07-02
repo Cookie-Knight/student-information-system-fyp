@@ -117,7 +117,7 @@ const Main: React.FC = () => {
           {/* Cards */}
           <div className="card bg-base-300 rounded-box grid h-16 flex-grow place-items-center">          
             <p className="h-16 pl-4 font-bold rounded-box text-3xl content-center bg-gradient-to-l from-indigo-50 to-violet-600 bg-clip-text text-transparent">
-              Welcome to CampuSphere Student Information System.
+              Student Information System
             </p>
           </div>
           <div className="divider lg:divider-horizontal"></div>

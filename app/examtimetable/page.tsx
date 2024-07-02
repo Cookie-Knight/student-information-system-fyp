@@ -124,7 +124,7 @@ export default function ExamTimetable() {
                     </h2>
                   </div>
                   <div className="divider divider-horizontal mx-4"
-                  style={{ marginLeft: "330px" }}></div>
+                  style={{ marginLeft: "200px" }}></div>
                   <div className="p-4">
                     <label className="form-control w-full max-w-xs">
                       <div className="label">
@@ -135,7 +135,7 @@ export default function ExamTimetable() {
                         className="select select-bordered"
                         value={selectedSemester || ""}
                         onChange={(e) => handleSemesterChange(Number(e.target.value))}
-                        style={{ marginRight: "-480px", marginLeft: "200px" }}
+                        style={{ marginRight: "-450px", marginLeft: "200px" }}
                       >
                         <option value="">Pick one</option>
                         {selectedCourse.semesters.map((semester) => (

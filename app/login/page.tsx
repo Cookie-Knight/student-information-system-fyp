@@ -42,9 +42,7 @@ function Login(): JSX.Element {
           <div className="text-center lg:text-left">
           <h1 className="text-5xl font-bold bg-gradient-to-r from-primary to-danger bg-clip-text text-transparent">CampuSphere.</h1>
             <h1 className="text-5xl font-bold">Student Information System</h1>
-            <p className="py-6 text-justify">
-              Welcome to CampuSphere. This secure portal is your gateway to a wide array of academic and administrative services, designed to help you manage your educational journey efficiently.
-            </p>
+          
           </div>
           <div className="card shrink-0 w-full max-w-sm shadow-2xl bg-base-300">
             <form className="card-body" onSubmit={handleLogin}>

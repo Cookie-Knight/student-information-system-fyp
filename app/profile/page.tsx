@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, { useEffect, useState } from "react";
 import Header from "@/app/components/Header";
@@ -84,7 +84,6 @@ const Profile: React.FC = () => {
     checkAuth();
   }, [router]);
 
-  // Function to resize and crop image to 4:5 aspect ratio
   const resizeAndCropImage = async (file: File, targetWidth: number, targetHeight: number): Promise<Blob> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -97,7 +96,6 @@ const Profile: React.FC = () => {
           const canvas = document.createElement("canvas");
           const ctx = canvas.getContext("2d");
 
-          // Calculate dimensions for the 4:5 aspect ratio
           const aspectRatio = 4 / 4;
           let width = img.width;
           let height = img.height;
@@ -252,49 +250,49 @@ const Profile: React.FC = () => {
             <div className="label">
             <span className="label-text-alt text-sm">Full Name</span>
             </div>
-            <input type="text" placeholder="Full Name" className="input input-bordered w-full max-w-xs" value={editableData.name} disabled/>  
+            <input type="text" placeholder="Full Name" name="name" value={editableData.name} onChange={handleInputChange}/>  
           </label>
 
           <label className="input input-bordered flex items-center gap-2 mb-6">
             <div className="label">
             <span className="label-text-alt text-sm">Personal Email</span>
             </div>
-            <input type="text" placeholder="Personal Email" value={editableData.personalEmail} onChange={handleInputChange} />  
+            <input type="text" placeholder="Personal Email" name="personalEmail" value={editableData.personalEmail} onChange={handleInputChange} />  
           </label>
 
           <label className="input input-bordered flex items-center gap-2 mb-6">
             <div className="label">
             <span className="label-text-alt text-sm">Permenant Address</span>
             </div>
-            <input type="text" placeholder="Permenant Address" value={editableData.permanentAddress} onChange={handleInputChange} />  
+            <input type="text" placeholder="Permenant Address" name="permanentAddress" value={editableData.permanentAddress} onChange={handleInputChange} />  
           </label>
 
           <label className="input input-bordered flex items-center gap-2 mb-6">
             <div className="label">
             <span className="label-text-alt text-sm">Identification Number / Passport ID</span>
             </div>
-            <input type="text" placeholder="Identification Number" className="input input-bordered w-full max-w-xs" value={editableData.identificationNumber} disabled />  
+            <input type="text" placeholder="Identification Number"  name="identificationNumber" value={editableData.identificationNumber} onChange={handleInputChange} />  
           </label>
 
           <label className="input input-bordered flex items-center gap-2 mb-6">
             <div className="label">
             <span className="label-text-alt text-sm">Gender</span>
             </div>
-            <input type="text" placeholder="Gender" className="input input-bordered w-full max-w-xs" value={editableData.gender} disabled />  
+            <input type="text" placeholder="Gender"  name="gender" value={editableData.gender} onChange={handleInputChange} />  
           </label>
 
           <label className="input input-bordered flex items-center gap-2 mb-6">
             <div className="label">
             <span className="label-text-alt text-sm">Race</span>
             </div>
-            <input type="text" placeholder="Race" className="input input-bordered w-full max-w-xs" value={editableData.race} disabled />  
+            <input type="text" placeholder="Race"  name="race" value={editableData.race} onChange={handleInputChange} />  
           </label>
 
           <label className="input input-bordered flex items-center gap-2 mb-6">
             <div className="label">
             <span className="label-text-alt text-sm">Date of Birth</span>
             </div>
-            <input type="text" placeholder="Date of Birth" className="input input-bordered w-full max-w-xs" value={editableData.dob} disabled />  
+            <input type="text" placeholder="Date of Birth"  name="dob" value={editableData.dob} onChange={handleInputChange} />  
           </label>
 
           <label className="form-control w-full max-w-xs">
