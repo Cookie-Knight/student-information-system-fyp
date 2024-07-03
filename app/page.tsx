@@ -6,7 +6,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase/firebaseConfig";
 import Header from "@/app/components/Header";
 import { Clock } from '@/app/components/Clock';
-import { getCGPA } from '@/app/examresult/page';
+import { getCGPA } from '@/app/components/gradeCalculations';
 
 interface StudentData {
   name: string;
