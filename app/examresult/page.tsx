@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import Header from "@/app/components/Header";
-import Loading from "../components/Loading";
+import { useRouter } from 'next/navigation';
 import { db } from "@/lib/firebase/firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
-import { useRouter } from 'next/navigation';
+import Header from "@/app/components/Header";
+import Loading from "../components/Loading";
 
+// Types
 interface ExamResultData {
   subjectCode: string;
   subjectTitle: string;
@@ -31,45 +32,42 @@ interface CourseType {
   name: string;
 }
 
-export async function getCGPA(userId: string): Promise<number> {
-  try {
-    const resultsDoc = await getDoc(doc(db, "results", userId));
-    if (resultsDoc.exists()) {
-      const resultsData = resultsDoc.data();
-      let totalCredits = 0;
-      let totalPoints = 0;
-      resultsData.examResults.forEach((semester: any) => {
-        semester.subjects.forEach((subject: any) => {
-          totalCredits += subject.creditHours;
-          totalPoints += subject.creditHours * getGradePoints(subject.grades);
-        });
-      });
-      const cgpa = totalPoints / totalCredits;
-      return parseFloat(cgpa.toFixed(2)); // format CGPA to two decimal places
-    } else {
-      throw new Error("No results data found");
-    }
-  } catch (error) {
-    console.error("Error fetching CGPA:", error);
-    throw error;
-  }
-}
+// Utility functions
+const getGradePoints = (grade: string): number => {
+  const gradePoints: { [key: string]: number } = { A: 4, B: 3, C: 2, D: 1, F: 0 };
+  return gradePoints[grade] || 0;
+};
 
-const getGradePoints = (grade: string) => {
-  switch (grade) {
-    case "A":
-      return 4;
-    case "B":
-      return 3;
-    case "C":
-      return 2;
-    case "D":
-      return 1;
-    case "F":
-      return 0;
-    default:
-      return 0;
-  }
+const calculateGPA = (subjects: ExamResultData[]): GPAData => {
+  let totalCredits = 0;
+  let totalPoints = 0;
+  subjects.forEach((subject) => {
+    totalCredits += subject.creditHours;
+    totalPoints += subject.creditHours * getGradePoints(subject.grades);
+  });
+  const gpa = totalPoints / totalCredits;
+  return {
+    semesterCredits: totalCredits,
+    gpa: parseFloat(gpa.toFixed(2)),
+  };
+};
+
+const calculateCGPA = (examResults: any[]): CGPAData => {
+  let totalCredits = 0;
+  let totalPoints = 0;
+  examResults.forEach((semester: any) => {
+    semester.subjects.forEach((subject: any) => {
+      totalCredits += subject.creditHours;
+      totalPoints += subject.creditHours * getGradePoints(subject.grades);
+    });
+  });
+  const cgpa = totalPoints / totalCredits;
+  return {
+    semesterCredits: 0,
+    gpa: 0,
+    totalCreditHoursEarned: totalCredits,
+    cgpa: parseFloat(cgpa.toFixed(2)),
+  };
 };
 
 export default function ExamResult() {
@@ -97,7 +95,7 @@ export default function ExamResult() {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [router]);
 
   const fetchUserCourses = async (userId: string) => {
     try {
@@ -130,12 +128,12 @@ export default function ExamResult() {
   const handleSemesterChange = useCallback(
     (semesterNumber: number) => {
       setSelectedSemester(semesterNumber);
-      if (semesterNumber && selectedCourse) {
-        fetchResults(user!.uid, selectedCourse.id, semesterNumber);
+      if (semesterNumber && selectedCourse && user) {
+        fetchResults(user.uid, selectedCourse.id, semesterNumber);
       } else {
         setResults([]);
         setGpaData(null);
-        setNoResultsFound(false); // Reset no results state
+        setNoResultsFound(false);
       }
     },
     [selectedCourse, user]
@@ -147,7 +145,7 @@ export default function ExamResult() {
     setSelectedSemester(null);
     setResults([]);
     setGpaData(null);
-    setNoResultsFound(false); // Reset no results state
+    setNoResultsFound(false);
   };
 
   const fetchResults = async (studentId: string, courseId: string, semesterNumber: number) => {
@@ -168,75 +166,22 @@ export default function ExamResult() {
           }));
 
           setResults(subjects);
-          calculateGPA(subjects);
-          calculateCGPA(resultsData.examResults); // Calculate CGPA using all semesters
-          setNoResultsFound(subjects.length === 0); // Set no results state
+          setGpaData(calculateGPA(subjects));
+          setCgpaData(calculateCGPA(resultsData.examResults));
+          setNoResultsFound(subjects.length === 0);
         } else {
           setResults([]);
           setGpaData(null);
-          setNoResultsFound(true); // No data for the selected semester
+          setNoResultsFound(true);
         }
       }
     } catch (error) {
       console.error("Error fetching data:", error);
       setResults([]);
       setGpaData(null);
-      setNoResultsFound(true); // Assume no data on error
+      setNoResultsFound(true);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const calculateGPA = (subjects: ExamResultData[]) => {
-    let totalCredits = 0;
-    let totalPoints = 0;
-    subjects.forEach((subject) => {
-      totalCredits += subject.creditHours;
-      totalPoints += subject.creditHours * getGradePoints(subject.grades);
-    });
-
-    const gpa = totalPoints / totalCredits;
-
-    setGpaData({
-      semesterCredits: totalCredits,
-      gpa: parseFloat(gpa.toFixed(2)), // format GPA to two decimal places
-    });
-  };
-
-  const calculateCGPA = (examResults: any[]) => {
-    let totalCredits = 0;
-    let totalPoints = 0;
-    examResults.forEach((semester: any) => {
-      semester.subjects.forEach((subject: any) => {
-        totalCredits += subject.creditHours;
-        totalPoints += subject.creditHours * getGradePoints(subject.grades);
-      });
-    });
-
-    const cgpa = totalPoints / totalCredits;
-
-    setCgpaData({
-      semesterCredits: 0, // Not relevant for CGPA
-      gpa: 0, // Not relevant for CGPA
-      totalCreditHoursEarned: totalCredits,
-      cgpa: parseFloat(cgpa.toFixed(2)), // format CGPA to two decimal places
-    });
-  };
-
-  const getGradePoints = (grade: string) => {
-    switch (grade) {
-      case "A":
-        return 4;
-      case "B":
-        return 3;
-      case "C":
-        return 2;
-      case "D":
-        return 1;
-      case "F":
-        return 0;
-      default:
-        return 0;
     }
   };
 
@@ -244,7 +189,7 @@ export default function ExamResult() {
     <main>
       <Header />
       <div className="flex flex-col w-full">
-        <div className="grid h-20 card bg-base-300 p-4 ml-4 mr-4 mt-4 rounded-box font-bold text-2xl place-content-evenly">Exam Results</div> 
+        <div className="grid h-20 card bg-base-300 p-4 mx-4 mt-4 rounded-box font-bold text-2xl place-content-evenly">Exam Results</div> 
         <div className="divider"></div> 
 
         {loading ? (
@@ -252,11 +197,27 @@ export default function ExamResult() {
         ) : (
           user && (
             <>
-              {selectedCourse && (
-                <div className="flex justify-between items-center stats stats-vertical lg:stats-horizontal p-4 ml-4 mr-4 mb-4 mt-4 shadow">
-                  <div className="stat">
-                    <h2 className="text-lg font-bold">{selectedCourse.name}</h2>
-                  </div>
+              <div className="flex justify-between items-center stats stats-vertical lg:stats-horizontal p-4 mx-4 my-4 shadow">
+                <div className="stat">
+                  <label className="form-control w-full max-w-xs">
+                    <div className="label">
+                      <span className="label-text">Select a course</span>
+                    </div>
+                    <select
+                      className="select select-bordered"
+                      onChange={(e) => handleCourseSelect(e.target.value)}
+                      value={selectedCourse?.id || ""}
+                    >
+                      <option value="">Pick one</option>
+                      {courses.map((course) => (
+                        <option key={course.id} value={course.id}>
+                          {course.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+                {selectedCourse && (
                   <div className="stat flex justify-end w-full">
                     <label className="form-control w-full max-w-xs">
                       <div className="label">
@@ -276,33 +237,10 @@ export default function ExamResult() {
                       </select>
                     </label>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
 
-              {!selectedCourse && (
-                <div className="flex justify-between items-center stats stats-vertical lg:stats-horizontal p-4 ml-4 mr-4 mb-4 mt-4 shadow">
-                  <div className="stat">
-                    <label className="form-control w-full max-w-xs">
-                      <div className="label">
-                        <span className="label-text">Select a course</span>
-                      </div>
-                      <select
-                        className="select select-bordered"
-                        onChange={(e) => handleCourseSelect(e.target.value)}
-                      >
-                        <option value="">Pick one</option>
-                        {courses.map((course) => (
-                          <option key={course.id} value={course.id}>
-                            {course.name}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                  </div>
-                </div>
-              )}
-
-              <div className="grid h-95 card bg-base-300 p-4 ml-4 mr-4 mb-4 mt-4 rounded-box">
+              <div className="grid h-95 card bg-base-300 p-4 mx-4 my-4 rounded-box">
                 <div className="overflow-x-auto">
                   {results.length > 0 ? (
                     <table className="table">
@@ -328,13 +266,15 @@ export default function ExamResult() {
                       </tbody>
                     </table>
                   ) : (
-                    <p className="text-center p-4">No exam results found for this semester.</p>
+                    <p className="text-center p-4">
+                      {noResultsFound ? "No exam results found for this semester." : "Please select a course and semester to view results."}
+                    </p>
                   )}
                 </div>
               </div>
 
               {(gpaData || cgpaData) && (
-                <div className="grid h-95 card bg-base-300 p-4 ml-4 mr-4 mb-4 mt-4 rounded-box">
+                <div className="grid h-95 card bg-base-300 p-4 mx-4 my-4 rounded-box">
                   <div className="overflow-x-auto">
                     <table className="table">
                       <thead>
@@ -347,10 +287,10 @@ export default function ExamResult() {
                       </thead>
                       <tbody>
                         <tr>
-                          <td>{gpaData ? gpaData.semesterCredits : '-'}</td>
-                          <td>{gpaData ? gpaData.gpa : '-'}</td>
-                          <td>{cgpaData ? cgpaData.totalCreditHoursEarned : '-'}</td>
-                          <td>{cgpaData ? cgpaData.cgpa : '-'}</td>
+                          <td>{gpaData?.semesterCredits || '-'}</td>
+                          <td>{gpaData?.gpa || '-'}</td>
+                          <td>{cgpaData?.totalCreditHoursEarned || '-'}</td>
+                          <td>{cgpaData?.cgpa || '-'}</td>
                         </tr>
                       </tbody>
                     </table>
