@@ -31,6 +31,47 @@ interface CourseType {
   name: string;
 }
 
+export async function getCGPA(userId: string): Promise<number> {
+  try {
+    const resultsDoc = await getDoc(doc(db, "results", userId));
+    if (resultsDoc.exists()) {
+      const resultsData = resultsDoc.data();
+      let totalCredits = 0;
+      let totalPoints = 0;
+      resultsData.examResults.forEach((semester: any) => {
+        semester.subjects.forEach((subject: any) => {
+          totalCredits += subject.creditHours;
+          totalPoints += subject.creditHours * getGradePoints(subject.grades);
+        });
+      });
+      const cgpa = totalPoints / totalCredits;
+      return parseFloat(cgpa.toFixed(2)); // format CGPA to two decimal places
+    } else {
+      throw new Error("No results data found");
+    }
+  } catch (error) {
+    console.error("Error fetching CGPA:", error);
+    throw error;
+  }
+}
+
+const getGradePoints = (grade: string) => {
+  switch (grade) {
+    case "A":
+      return 4;
+    case "B":
+      return 3;
+    case "C":
+      return 2;
+    case "D":
+      return 1;
+    case "F":
+      return 0;
+    default:
+      return 0;
+  }
+};
+
 export default function ExamResult() {
   const [user, setUser] = useState<User | null>(null);
   const [courses, setCourses] = useState<CourseType[]>([]);
@@ -67,11 +108,13 @@ export default function ExamResult() {
         const userCourses = studentData.courses || [];
         const coursesList: CourseType[] = [];
 
-        for (const courseId of userCourses) {
-          const courseDoc = await getDoc(doc(db, "courses", courseId));
-          if (courseDoc.exists()) {
-            const courseData = courseDoc.data();
-            coursesList.push({ id: courseDoc.id, name: courseData.name });
+        for (const courseObj of userCourses) {
+          if (courseObj.courseId) {
+            const courseDoc = await getDoc(doc(db, "courses", courseObj.courseId));
+            if (courseDoc.exists()) {
+              const courseData = courseDoc.data();
+              coursesList.push({ id: courseDoc.id, name: courseData.name });
+            }
           }
         }
 
@@ -156,7 +199,7 @@ export default function ExamResult() {
 
     setGpaData({
       semesterCredits: totalCredits,
-      gpa: gpa,
+      gpa: parseFloat(gpa.toFixed(2)), // format GPA to two decimal places
     });
   };
 
@@ -176,7 +219,7 @@ export default function ExamResult() {
       semesterCredits: 0, // Not relevant for CGPA
       gpa: 0, // Not relevant for CGPA
       totalCreditHoursEarned: totalCredits,
-      cgpa: cgpa,
+      cgpa: parseFloat(cgpa.toFixed(2)), // format CGPA to two decimal places
     });
   };
 
@@ -212,18 +255,17 @@ export default function ExamResult() {
               {selectedCourse && (
                 <div className="flex justify-between items-center stats stats-vertical lg:stats-horizontal p-4 ml-4 mr-4 mb-4 mt-4 shadow">
                   <div className="stat">
-                    <h2 className="text-lg font-bold" style={{ marginLeft: "20px" }}>{selectedCourse.name}</h2>
+                    <h2 className="text-lg font-bold">{selectedCourse.name}</h2>
                   </div>
-                  <div className="stat">
+                  <div className="stat flex justify-end w-full">
                     <label className="form-control w-full max-w-xs">
-                      <div className="label" style={{ marginLeft: "190px" }}>
+                      <div className="label">
                         <span className="label-text">Select a semester</span>
                       </div>
                       <select
                         className="select select-bordered"
                         value={selectedSemester || ""}
                         onChange={(e) => handleSemesterChange(Number(e.target.value))}
-                        style={{ marginRight: "-200px", marginLeft: "190px" }}
                       >
                         <option value="">Pick one</option>
                         {[1, 2, 3, 4, 5].map((sem) => (

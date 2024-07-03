@@ -17,6 +17,7 @@ type SubjectType = {
 type SemesterType = {
   id: string;
   name: string;
+  semesterNumber: number;
   subjects: SubjectType[];
 };
 
@@ -56,10 +57,28 @@ export default function SubjectListing() {
         const userCourses = userData.courses || [];
         const coursesList = [];
 
-        for (const courseId of userCourses) {
-          const courseDoc = await getDoc(doc(db, "courses", courseId));
+        for (const courseData of userCourses) {
+          const courseDoc = await getDoc(doc(db, "courses", courseData.courseId));
           if (courseDoc.exists()) {
-            coursesList.push({ id: courseDoc.id, ...courseDoc.data() });
+            const courseInfo = courseDoc.data();
+            const course = {
+              id: courseDoc.id,
+              name: courseInfo.name,
+              semesters: courseInfo.semesters.map((semester: any) => ({
+                id: semester.id,
+                name: semester.name,
+                semesterNumber: semester.semesterNumber,
+                subjects: semester.subjects.map((subject: any) => ({
+                  ...subject,
+                  status: courseData.semesters.find(
+                    (userSemester: any) => userSemester.id === semester.id
+                  )?.subjects.find(
+                    (userSubject: any) => userSubject.code === subject.code
+                  )?.status || "not enrolled"
+                }))
+              }))
+            };
+            coursesList.push(course);
           }
         }
 
@@ -100,21 +119,21 @@ export default function SubjectListing() {
     <main>
       <Header />
       <div className="flex flex-col min-h-screen min-w-screen">
-      <div className="grid h-20 card bg-base-300 p-4 ml-4 mr-4 mt-4 rounded-box font-bold text-2xl place-content-evenly">Subject Listing</div> 
-      <div className="divider"></div> 
+        <div className="grid h-20 card bg-base-300 p-4 ml-4 mr-4 mt-4 rounded-box font-bold text-2xl place-content-evenly">Subject Listing</div>
+        <div className="divider"></div>
 
         {user ? (
           <>
             {selectedCourse && (
               <div className="flex justify-between items-center stats stats-vertical lg:stats-horizontal p-4 ml-4 mr-4 mb-4 mt-4 shadow">
                 <div className="stat">
-                  <h2 className="text-lg font-bold"
-                  style={{ marginLeft: "20px" }}>{selectedCourse.name}</h2>
+                  <h2 className="text-lg font-bold" style={{ marginLeft: "20px" }}>
+                    {selectedCourse.name}
+                  </h2>
                 </div>
                 <div className="stat">
                   <label className="form-control w-full max-w-xs">
-                    <div className="label"style={{ marginLeft: "190px" }}
-                    >
+                    <div className="label" style={{ marginLeft: "190px" }}>
                       <span className="label-text">Select a semester</span>
                     </div>
                     <select
@@ -122,7 +141,6 @@ export default function SubjectListing() {
                       value={selectedSemester || ""}
                       onChange={(e) => handleSemesterChange(e.target.value)}
                       style={{ marginRight: "-200px", marginLeft: "190px" }}
-
                     >
                       <option value="">Pick one</option>
                       {selectedCourse.semesters.map((semester) => (

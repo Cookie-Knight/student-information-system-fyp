@@ -30,7 +30,7 @@ type CourseType = {
 };
 
 export default function ExamTimetable() {
-  const [user, setUser] = useState<User | null>(null); // Define user state to handle User or null types
+  const [user, setUser] = useState<User | null>(null); 
   const [courses, setCourses] = useState<CourseType[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<CourseType | null>(null);
   const [selectedSemester, setSelectedSemester] = useState<number | null>(null);
@@ -40,9 +40,11 @@ export default function ExamTimetable() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
+        console.log("User authenticated: ", user.uid); // Debug
         setUser(user);
         fetchUserCourses(user.uid);
       } else {
+        console.log("No user authenticated"); // Debug
         setUser(null);
         router.push('/login'); 
       }
@@ -53,19 +55,23 @@ export default function ExamTimetable() {
 
   const fetchUserCourses = async (userId: string) => {
     try {
+      console.log("Fetching courses for user: ", userId); // Debug
       const userDoc = await getDoc(doc(db, "students", userId));
       if (userDoc.exists()) {
         const userData = userDoc.data();
+        console.log("User data: ", userData); // Debug
         const userCourses = userData.courses || [];
         const coursesList = [];
 
-        for (const courseId of userCourses) {
+        for (const course of userCourses) {
+          const courseId = course.courseId;
           const courseDoc = await getDoc(doc(db, "courses", courseId));
           if (courseDoc.exists()) {
             coursesList.push({ id: courseDoc.id, ...courseDoc.data() });
           }
         }
 
+        console.log("Fetched courses: ", coursesList); // Debug
         setCourses(coursesList as CourseType[]);
       }
     } catch (error) {
@@ -87,6 +93,7 @@ export default function ExamTimetable() {
 
   const handleCourseSelect = (courseId: string) => {
     const selected = courses.find((course) => course.id === courseId) || null;
+    console.log("Selected course: ", selected); // Debug
     setSelectedCourse(selected);
     setSelectedSemester(null);
     setTimetable([]);
@@ -94,13 +101,15 @@ export default function ExamTimetable() {
 
   const fetchTimetable = async (courseId: string, semester: number) => {
     try {
+      console.log("Fetching timetable for course: ", courseId, " semester: ", semester); // Debug
       const timetableQuery = query(
-        collection(db, "exams"), // Query the exams collection
+        collection(db, "exams"), 
         where("courseId", "==", courseId),
         where("semester", "==", semester)
       );
       const querySnapshot = await getDocs(timetableQuery);
       const timetableData = querySnapshot.docs.map(doc => doc.data() as Exam);
+      console.log("Fetched timetable: ", timetableData); // Debug
       setTimetable(timetableData);
     } catch (error) {
       console.error("Error fetching timetable:", error);
@@ -112,30 +121,46 @@ export default function ExamTimetable() {
       <Header />
       <div className="min-h-screen min-w-screen p-5">
         <div className="grid h-20 card bg-base-300 p-4 ml-4 mr-4 mb-4 mt-4 rounded-box font-bold text-2xl place-content-evenly">Exam Timetable</div> 
-          <div className="divider txt-slaete-400"></div>
+        <div className="divider txt-slaete-400"></div>
         {user ? (
           <>
+            {!selectedCourse && (
+              <div className="flex flex-col items-start stats stats-vertical lg:stats-horizontal p-4 ml-4 mr-4 mb-4 mt-4 shadow">
+                <label className="form-control w-full max-w-xs">
+                  <div className="label">
+                    <span className="label-text">Select a course</span>
+                  </div>
+                  <select
+                    className="select select-bordered"
+                    onChange={(e) => handleCourseSelect(e.target.value)}
+                  >
+                    <option value="">Pick one</option>
+                    {courses.map((course) => (
+                      <option key={course.id} value={course.id}>
+                        {course.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+            )}
+
             {selectedCourse && (
               <div className="flex justify-between items-center stats stats-vertical lg:stats-horizontal p-4 ml-4 mr-4 mb-4 mt-4 shadow">
                 <div className="flex items-center">
                   <div className="p-4">
-                    <h2 className="text-lg font-bold">
-                      {selectedCourse.name}
-                    </h2>
+                    <h2 className="text-lg font-bold">{selectedCourse.name}</h2>
                   </div>
-                  <div className="divider divider-horizontal mx-4"
-                  style={{ marginLeft: "200px" }}></div>
+                  <div className="divider divider-horizontal mx-4"></div>
                   <div className="p-4">
                     <label className="form-control w-full max-w-xs">
                       <div className="label">
-                        <span className="label-text"
-                        style={{ marginRight: "-300px", marginLeft: "200px" }}>Select a semester</span>
+                        <span className="label-text">Select a semester</span>
                       </div>
                       <select
                         className="select select-bordered"
                         value={selectedSemester || ""}
                         onChange={(e) => handleSemesterChange(Number(e.target.value))}
-                        style={{ marginRight: "-450px", marginLeft: "200px" }}
                       >
                         <option value="">Pick one</option>
                         {selectedCourse.semesters.map((semester) => (
@@ -147,28 +172,6 @@ export default function ExamTimetable() {
                     </label>
                   </div>
                 </div>
-              </div>
-            )}
-
-            {!selectedCourse && (
-              <div className="flex flex-col items-center stats stats-vertical lg:stats-horizontal p-4 ml-4 mr-4 mb-4 mt-4 shadow">
-                <label className="form-control w-full max-w-xs">
-                  <div className="label">
-                    <span className="label-text">Select a course</span>
-                  </div>
-                  <select
-                    className="select select-bordered"
-                    onChange={(e) => handleCourseSelect(e.target.value)}
-                    style={{ marginLeft: "0px" }} // Adjust this value to shift the dropdown box to the left or right
-                  >
-                    <option value="">Pick one</option>
-                    {courses.map((course) => (
-                      <option key={course.id} value={course.id}>
-                        {course.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
               </div>
             )}
 
@@ -188,7 +191,7 @@ export default function ExamTimetable() {
                   <tbody>
                     {timetable.map((examInfo, index) => (
                       <tr key={index}>
-                        <th>{index + 2}</th>
+                        <th>{index + 1}</th>
                         <td>{examInfo.programmeCode}</td>
                         <td>{examInfo.name}</td>
                         <td>{examInfo.time}</td>

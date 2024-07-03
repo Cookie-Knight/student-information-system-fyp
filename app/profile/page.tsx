@@ -8,10 +8,15 @@ import { useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
+interface Course {
+  courseId: string;
+  semesters: string[];
+}
+
 interface StudentData {
   name: string;
   studentId: string;
-  courses: string;
+  courses: Course[];
   currentSemester: string;
   personalEmail: string;
   permanentAddress: string;
@@ -26,7 +31,7 @@ const Profile: React.FC = () => {
   const [studentData, setStudentData] = useState<StudentData>({
     name: "",
     studentId: "",
-    courses: "",
+    courses: [],
     currentSemester: "",
     personalEmail: "",
     permanentAddress: "",
@@ -48,7 +53,7 @@ const Profile: React.FC = () => {
     avatarUrl: "",
   });
 
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null); // State for avatar URL
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   const router = useRouter();
 
@@ -109,7 +114,6 @@ const Profile: React.FC = () => {
           canvas.width = targetWidth;
           canvas.height = targetHeight;
 
-          // Centering and drawing the image on the canvas
           ctx?.drawImage(
             img,
             (img.width - width) / 2,
@@ -122,7 +126,6 @@ const Profile: React.FC = () => {
             targetHeight
           );
 
-          // Convert canvas to Blob and resolve the promise
           canvas.toBlob((blob) => {
             if (blob) {
               resolve(blob);
@@ -159,7 +162,6 @@ const Profile: React.FC = () => {
 
       const docRef = doc(db, "students", user.uid);
       await setDoc(docRef, editableData as StudentData, { merge: true });
-      // Update displayed data after successful submission
       setStudentData(editableData as StudentData);
       alert("Data updated successfully!");
     } catch (error) {
@@ -179,19 +181,15 @@ const Profile: React.FC = () => {
     }
 
     try {
-      // Resize and crop image to a 4:5 aspect ratio
       const croppedBlob = await resizeAndCropImage(file, 400, 400); 
-      
-      // Upload the cropped image to Firebase Storage
       const storageRef = ref(storage, `avatars/${user.uid}/${file.name}`);
       const snapshot = await uploadBytes(storageRef, croppedBlob);
       const downloadUrl = await getDownloadURL(snapshot.ref);
 
-      // Update avatarUrl in Firestore
       const userDocRef = doc(db, "students", user.uid);
       await updateDoc(userDocRef, {
-        avatarUrl: downloadUrl // Use type assertion to include avatarUrl
-      } as Partial<StudentData>); // Type assertion here to resolve TypeScript error
+        avatarUrl: downloadUrl
+      } as Partial<StudentData>);
 
       setAvatarUrl(downloadUrl);
       alert("Avatar uploaded successfully!");
@@ -201,115 +199,110 @@ const Profile: React.FC = () => {
     }
   };
 
-  
-  return  (
+  return (
     <main>
       <Header />
       <div className="min-h-screen min-w-screen">
-      <div className="grid h-20 card bg-base-300 p-4 ml-4 mr-4 mt-4 rounded-box font-bold text-2xl place-content-evenly">Profile Information</div> 
-      <div className="divider"></div> 
-      
+        <div className="grid h-20 card bg-base-300 p-4 ml-4 mr-4 mt-4 rounded-box font-bold text-2xl place-content-evenly">Profile Information</div> 
+        <div className="divider"></div> 
+        
         <div className="flex flex-col p-4 lg:flex-row">
-        <div className="card h-fit w-auto bg-base-300 shadow-xl">
-          <figure>
-            <img className="rounded-box"
-              src={avatarUrl || 'https://static.vecteezy.com/system/resources/previews/017/800/528/non_2x/user-simple-flat-icon-illustration-vector.jpg'}
-              alt="Avatar"
-            />
-          </figure>
-          <div className="card-body">
-          <label className="form-control w-full max-w-xs">
-            <div className="label">
-            <span className="label-text-alt text-sm">Student Identification Number</span>
-            </div>
-            <input type="text" placeholder="Student ID" className="input input-bordered w-full max-w-xs" value={studentData.studentId} disabled/>  
-          </label>
+          <div className="card h-fit w-auto bg-base-300 shadow-xl">
+            <figure>
+              <img className="rounded-box"
+                src={avatarUrl || 'https://static.vecteezy.com/system/resources/previews/017/800/528/non_2x/user-simple-flat-icon-illustration-vector.jpg'}
+                alt="Avatar"
+              />
+            </figure>
+            <div className="card-body">
+              <label className="form-control w-full max-w-xs">
+                <div className="label">
+                  <span className="label-text-alt text-sm">Student Identification Number</span>
+                </div>
+                <input type="text" placeholder="Student ID" className="input input-bordered w-full max-w-xs bg-gray-300 text-gray-700" value={studentData.studentId} disabled/>  
+              </label>
 
-          <label className="form-control w-full max-w-xs">
-            <div className="label">
-            <span className="label-text-alt text-sm">Course Name</span>
-            </div>
-            <input type="text" placeholder="Course" className="input input-bordered w-full max-w-xs" value={studentData.courses} disabled/>  
-          </label>
+              <label className="form-control w-full max-w-xs">
+                <div className="label">
+                  <span className="label-text-alt text-sm">Course Name</span>
+                </div>
+                <input type="text" placeholder="Course" className="input input-bordered w-full max-w-xs bg-gray-300 text-gray-700" value={studentData.courses.map(course => course.courseId).join(", ")} disabled/>  
+              </label>
 
-          <label className="form-control w-full max-w-xs">
-            <div className="label">
-            <span className="label-text-alt text-sm">Current Semester</span>
+              <label className="form-control w-full max-w-xs">
+                <div className="label">
+                  <span className="label-text-alt text-sm">Current Semester</span>
+                </div>
+                <input type="text" placeholder="Course" className="input input-bordered w-full max-w-xs bg-gray-300 text-gray-700" value={studentData.currentSemester} disabled/>  
+              </label>
             </div>
-            <input type="text" placeholder="Course" className="input input-bordered w-full max-w-xs" value={studentData.currentSemester} disabled/>  
-          </label>
+          </div>
 
+          <div className="divider lg:divider-horizontal"></div>
+
+          <div className="card bg-base-300 flex-grow p-5 rounded-box">
+
+            <label className="input input-bordered flex items-center gap-2 mb-6">
+              <div className="label">
+                <span className="label-text-alt text-sm">Full Name</span>
+              </div>
+              <input type="text" placeholder="Full Name" name="name" value={editableData.name} onChange={handleInputChange}/>  
+            </label>
+
+            <label className="input input-bordered flex items-center gap-2 mb-6">
+              <div className="label">
+                <span className="label-text-alt text-sm">Personal Email</span>
+              </div>
+              <input type="text" placeholder="Personal Email" name="personalEmail" value={editableData.personalEmail} onChange={handleInputChange} />  
+            </label>
+
+            <label className="input input-bordered flex items-center gap-2 mb-6">
+              <div className="label">
+                <span className="label-text-alt text-sm">Permanent Address</span>
+              </div>
+              <input type="text" placeholder="Permanent Address" name="permanentAddress" value={editableData.permanentAddress} onChange={handleInputChange} />  
+            </label>
+
+            <label className="input input-bordered flex items-center gap-2 mb-6">
+              <div className="label">
+                <span className="label-text-alt text-sm">Identification Number / Passport ID</span>
+              </div>
+              <input type="text" placeholder="Identification Number"  name="identificationNumber" value={editableData.identificationNumber} onChange={handleInputChange} />  
+            </label>
+
+            <label className="input input-bordered flex items-center gap-2 mb-6">
+              <div className="label">
+                <span className="label-text-alt text-sm">Gender</span>
+              </div>
+              <input type="text" placeholder="Gender"  name="gender" value={editableData.gender} onChange={handleInputChange} />  
+            </label>
+
+            <label className="input input-bordered flex items-center gap-2 mb-6">
+              <div className="label">
+                <span className="label-text-alt text-sm">Race</span>
+              </div>
+              <input type="text" placeholder="Race"  name="race" value={editableData.race} onChange={handleInputChange} />  
+            </label>
+
+            <label className="input input-bordered flex items-center gap-2 mb-6">
+              <div className="label">
+                <span className="label-text-alt text-sm">Date of Birth</span>
+              </div>
+              <input type="text" placeholder="Date of Birth"  name="dob" value={editableData.dob} onChange={handleInputChange} />  
+            </label>
+
+            <label className="form-control w-full max-w-xs">
+              <div className="label">
+                <span className="label-text text-sm">Upload your profile picture</span>
+              </div>
+              <input type="file" accept="image/*" className="file-input file-input-bordered w-full max-w-xs" onChange={handleFileUpload} />
+            </label>
+
+            <button className="btn mt-4" onClick={handleSubmit}>
+              Confirm Information Update
+            </button>
           </div>
         </div>
-
-        <div className="divider lg:divider-horizontal"></div>
-
-        <div className="card bg-base-300 flex-grow p-5 rounded-box">
-
-        <label className="input input-bordered flex items-center gap-2 mb-6">
-            <div className="label">
-            <span className="label-text-alt text-sm">Full Name</span>
-            </div>
-            <input type="text" placeholder="Full Name" name="name" value={editableData.name} onChange={handleInputChange}/>  
-          </label>
-
-          <label className="input input-bordered flex items-center gap-2 mb-6">
-            <div className="label">
-            <span className="label-text-alt text-sm">Personal Email</span>
-            </div>
-            <input type="text" placeholder="Personal Email" name="personalEmail" value={editableData.personalEmail} onChange={handleInputChange} />  
-          </label>
-
-          <label className="input input-bordered flex items-center gap-2 mb-6">
-            <div className="label">
-            <span className="label-text-alt text-sm">Permenant Address</span>
-            </div>
-            <input type="text" placeholder="Permenant Address" name="permanentAddress" value={editableData.permanentAddress} onChange={handleInputChange} />  
-          </label>
-
-          <label className="input input-bordered flex items-center gap-2 mb-6">
-            <div className="label">
-            <span className="label-text-alt text-sm">Identification Number / Passport ID</span>
-            </div>
-            <input type="text" placeholder="Identification Number"  name="identificationNumber" value={editableData.identificationNumber} onChange={handleInputChange} />  
-          </label>
-
-          <label className="input input-bordered flex items-center gap-2 mb-6">
-            <div className="label">
-            <span className="label-text-alt text-sm">Gender</span>
-            </div>
-            <input type="text" placeholder="Gender"  name="gender" value={editableData.gender} onChange={handleInputChange} />  
-          </label>
-
-          <label className="input input-bordered flex items-center gap-2 mb-6">
-            <div className="label">
-            <span className="label-text-alt text-sm">Race</span>
-            </div>
-            <input type="text" placeholder="Race"  name="race" value={editableData.race} onChange={handleInputChange} />  
-          </label>
-
-          <label className="input input-bordered flex items-center gap-2 mb-6">
-            <div className="label">
-            <span className="label-text-alt text-sm">Date of Birth</span>
-            </div>
-            <input type="text" placeholder="Date of Birth"  name="dob" value={editableData.dob} onChange={handleInputChange} />  
-          </label>
-
-          <label className="form-control w-full max-w-xs">
-            <div className="label">
-              <span className="label-text text-sm">Upload your profile picture</span>
-            </div>
-            <input type="file" accept="image/*" className="file-input file-input-bordered w-full max-w-xs" onChange={handleFileUpload} />
-            <div className="label">
-
-            </div>
-          </label>
-
-          <button className="btn mt-4" onClick={handleSubmit}>
-            Comfirm Information Update
-          </button>
-        </div>
-      </div>
       </div>
     </main>
   );

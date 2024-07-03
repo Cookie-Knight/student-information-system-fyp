@@ -73,10 +73,13 @@ export default function Attendance() {
         const userCourses = userData.courses || [];
         const coursesList: CourseType[] = [];
 
-        for (const courseId of userCourses) {
-          const courseDoc = await getDoc(doc(db, "courses", courseId));
-          if (courseDoc.exists()) {
-            coursesList.push({ id: courseDoc.id, ...(courseDoc.data() as Omit<CourseType, "id">) });
+        for (const courseObj of userCourses) {
+          if (courseObj.courseId) {
+            const courseDoc = await getDoc(doc(db, "courses", courseObj.courseId));
+            if (courseDoc.exists()) {
+              const courseData = courseDoc.data();
+              coursesList.push({ id: courseDoc.id, ...(courseData as Omit<CourseType, "id">) });
+            }
           }
         }
 

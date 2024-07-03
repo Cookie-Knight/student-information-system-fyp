@@ -30,20 +30,22 @@ type CourseType = {
 };
 
 export default function ExamTimetable() {
-  const [user, setUser] = useState<User | null>(null); // Define user state to handle User or null types
+  const [user, setUser] = useState<User | null>(null); 
   const [courses, setCourses] = useState<CourseType[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<CourseType | null>(null);
   const [selectedSemester, setSelectedSemester] = useState<number | null>(null);
   const [timetable, setTimetable] = useState<Exam[]>([]);
-  const [loading, setLoading] = useState<boolean>(true); // Added loading state
+  const [loading, setLoading] = useState<boolean>(true); 
   const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
+        console.log("User authenticated: ", user.uid); // Debug
         setUser(user);
         fetchUserCourses(user.uid);
       } else {
+        console.log("No user authenticated"); // Debug
         setUser(null);
         router.push('/login'); 
       }
@@ -54,26 +56,30 @@ export default function ExamTimetable() {
 
   const fetchUserCourses = async (userId: string) => {
     try {
-      setLoading(true); // Set loading to true
+      setLoading(true); 
+      console.log("Fetching courses for user: ", userId); // Debug
       const userDoc = await getDoc(doc(db, "students", userId));
       if (userDoc.exists()) {
         const userData = userDoc.data();
+        console.log("User data: ", userData); // Debug
         const userCourses = userData.courses || [];
         const coursesList = [];
 
-        for (const courseId of userCourses) {
+        for (const course of userCourses) {
+          const courseId = course.courseId;
           const courseDoc = await getDoc(doc(db, "courses", courseId));
           if (courseDoc.exists()) {
             coursesList.push({ id: courseDoc.id, ...courseDoc.data() });
           }
         }
 
+        console.log("Fetched courses: ", coursesList); // Debug
         setCourses(coursesList as CourseType[]);
       }
     } catch (error) {
       console.error("Error fetching user courses: ", error);
     } finally {
-      setLoading(false); // Set loading to false
+      setLoading(false); 
     }
   };
 
@@ -91,6 +97,7 @@ export default function ExamTimetable() {
 
   const handleCourseSelect = (courseId: string) => {
     const selected = courses.find((course) => course.id === courseId) || null;
+    console.log("Selected course: ", selected); // Debug
     setSelectedCourse(selected);
     setSelectedSemester(null);
     setTimetable([]);
@@ -98,19 +105,21 @@ export default function ExamTimetable() {
 
   const fetchTimetable = async (courseId: string, semester: number) => {
     try {
-      setLoading(true); // Set loading to true
+      setLoading(true); 
+      console.log("Fetching timetable for course: ", courseId, " semester: ", semester); // Debug
       const timetableQuery = query(
-        collection(db, "exams"), // Query the exams collection
+        collection(db, "exams"), 
         where("courseId", "==", courseId),
         where("semester", "==", semester)
       );
       const querySnapshot = await getDocs(timetableQuery);
       const timetableData = querySnapshot.docs.map(doc => doc.data() as Exam);
+      console.log("Fetched timetable: ", timetableData); // Debug
       setTimetable(timetableData);
     } catch (error) {
       console.error("Error fetching timetable:", error);
     } finally {
-      setLoading(false); // Set loading to false
+      setLoading(false); 
     }
   };
 

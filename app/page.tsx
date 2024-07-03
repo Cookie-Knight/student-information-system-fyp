@@ -1,11 +1,12 @@
-'use client';
+"use client";
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from 'next/navigation';
 import { doc, getDoc } from "firebase/firestore";
-import { db, auth } from "../lib/firebase/firebaseConfig";
+import { db, auth } from "@/lib/firebase/firebaseConfig";
 import Header from "@/app/components/Header";
-import { Clock } from '../app/components/Clock';
+import { Clock } from '@/app/components/Clock';
+import { getCGPA } from '@/app/examresult/page';
 
 interface StudentData {
   name: string;
@@ -24,7 +25,6 @@ interface Lecture {
   location: string;
   date: string;
 }
-
 
 const Main: React.FC = () => {
   const [studentData, setStudentData] = useState<StudentData>({
@@ -51,6 +51,15 @@ const Main: React.FC = () => {
 
             if (docSnap.exists()) {
               const data = docSnap.data() as StudentData;
+
+              // Fetch CGPA from examresult page
+              try {
+                const cgpa = await getCGPA(user.uid);
+                data.cgpa = cgpa.toString(); // Update CGPA with the value from examresult
+              } catch (error) {
+                console.error("Error fetching CGPA:", error);
+              }
+
               setStudentData(data);
 
               // Fetch lectures data using the lectures array in studentData
@@ -107,7 +116,7 @@ const Main: React.FC = () => {
     );
   };
 
-  const now = new Date()
+  const now = new Date();
 
   return (
     <main>
@@ -122,8 +131,9 @@ const Main: React.FC = () => {
           </div>
           <div className="divider lg:divider-horizontal"></div>
           <div className="card bg-base-300 rounded-box grid h-16 flex-grow place-items-center">
-          <div className="h-16 pl-4 font-bold rounded-box text-3xl content-center">
-          <Clock time={now.getTime()} /></div>
+            <div className="h-16 pl-4 font-bold rounded-box text-3xl content-center">
+              <Clock time={now.getTime()} />
+            </div>
           </div>
         </div>
 
@@ -173,7 +183,6 @@ const Main: React.FC = () => {
             <table className="table">
               <thead>
                 <tr>
-                  
                   <th>Course Code</th>
                   <th>Course Name</th>
                   <th>Time</th>
@@ -184,7 +193,6 @@ const Main: React.FC = () => {
               <tbody>
                 {lectures.map((lecture) => (
                   <tr key={lecture.id} className="hover">
-                    
                     <td>{lecture.programmeCode}</td>
                     <td>{lecture.name}</td>
                     <td>{lecture.time}</td>
@@ -201,7 +209,7 @@ const Main: React.FC = () => {
 
         {/* Timeline */}
         <ul className="timeline justify-center">
-          {[1, 2, 3, 4, 5, 6].map(semester => renderSemester(semester))}
+          {[1, 2, 3, 4, 5].map(semester => renderSemester(semester))}
         </ul>
       </div>
     </main>
