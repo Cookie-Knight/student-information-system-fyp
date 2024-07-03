@@ -1,3 +1,4 @@
+// pages/examResults.tsx
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
@@ -6,7 +7,7 @@ import { db } from "@/lib/firebase/firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 import Header from "@/app/components/Header";
-import Loading from "../components/Loading";
+import Loading from "@/app/components/Loading";
 
 // Types
 interface ExamResultData {
@@ -22,11 +23,6 @@ interface GPAData {
   gpa: number;
 }
 
-interface CGPAData extends GPAData {
-  totalCreditHoursEarned: number;
-  cgpa: number;
-}
-
 interface CourseType {
   id: string;
   name: string;
@@ -38,37 +34,29 @@ const getGradePoints = (grade: string): number => {
   return gradePoints[grade] || 0;
 };
 
-const calculateGPA = (subjects: ExamResultData[]): GPAData => {
-  let totalCredits = 0;
-  let totalPoints = 0;
-  subjects.forEach((subject) => {
-    totalCredits += subject.creditHours;
-    totalPoints += subject.creditHours * getGradePoints(subject.grades);
-  });
-  const gpa = totalPoints / totalCredits;
-  return {
-    semesterCredits: totalCredits,
-    gpa: parseFloat(gpa.toFixed(2)),
-  };
-};
-
-const calculateCGPA = (examResults: any[]): CGPAData => {
-  let totalCredits = 0;
-  let totalPoints = 0;
-  examResults.forEach((semester: any) => {
-    semester.subjects.forEach((subject: any) => {
-      totalCredits += subject.creditHours;
-      totalPoints += subject.creditHours * getGradePoints(subject.grades);
-    });
-  });
-  const cgpa = totalPoints / totalCredits;
-  return {
-    semesterCredits: 0,
-    gpa: 0,
-    totalCreditHoursEarned: totalCredits,
-    cgpa: parseFloat(cgpa.toFixed(2)),
-  };
-};
+export async function getCGPA(userId: string): Promise<number> {
+  try {
+    const resultsDoc = await getDoc(doc(db, "results", userId));
+    if (resultsDoc.exists()) {
+      const resultsData = resultsDoc.data();
+      let totalCredits = 0;
+      let totalPoints = 0;
+      resultsData.examResults.forEach((semester: any) => {
+        semester.subjects.forEach((subject: any) => {
+          totalCredits += subject.creditHours;
+          totalPoints += subject.creditHours * getGradePoints(subject.grades);
+        });
+      });
+      const cgpa = totalPoints / totalCredits;
+      return parseFloat(cgpa.toFixed(2));
+    } else {
+      throw new Error("No results data found");
+    }
+  } catch (error) {
+    console.error("Error fetching CGPA:", error);
+    throw error;
+  }
+}
 
 export default function ExamResult() {
   const [user, setUser] = useState<User | null>(null);
@@ -77,9 +65,10 @@ export default function ExamResult() {
   const [selectedSemester, setSelectedSemester] = useState<number | null>(null);
   const [results, setResults] = useState<ExamResultData[]>([]);
   const [gpaData, setGpaData] = useState<GPAData | null>(null);
-  const [cgpaData, setCgpaData] = useState<CGPAData | null>(null);
+  const [cgpa, setCGPA] = useState<number | null>(null);
   const [noResultsFound, setNoResultsFound] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [showCGPA, setShowCGPA] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -88,6 +77,7 @@ export default function ExamResult() {
       if (currentUser) {
         setUser(currentUser);
         fetchUserCourses(currentUser.uid);
+        fetchCGPA(currentUser.uid);
       } else {
         setUser(null);
         router.push('/login');
@@ -96,6 +86,16 @@ export default function ExamResult() {
 
     return () => unsubscribe();
   }, [router]);
+
+  const fetchCGPA = async (userId: string) => {
+    try {
+      const fetchedCGPA = await getCGPA(userId);
+      setCGPA(fetchedCGPA);
+    } catch (error) {
+      console.error("Error fetching CGPA:", error);
+      setCGPA(null);
+    }
+  };
 
   const fetchUserCourses = async (userId: string) => {
     try {
@@ -130,10 +130,12 @@ export default function ExamResult() {
       setSelectedSemester(semesterNumber);
       if (semesterNumber && selectedCourse && user) {
         fetchResults(user.uid, selectedCourse.id, semesterNumber);
+        setShowCGPA(true);
       } else {
         setResults([]);
         setGpaData(null);
         setNoResultsFound(false);
+        setShowCGPA(false);
       }
     },
     [selectedCourse, user]
@@ -146,6 +148,7 @@ export default function ExamResult() {
     setResults([]);
     setGpaData(null);
     setNoResultsFound(false);
+    setShowCGPA(false);
   };
 
   const fetchResults = async (studentId: string, courseId: string, semesterNumber: number) => {
@@ -166,8 +169,7 @@ export default function ExamResult() {
           }));
 
           setResults(subjects);
-          setGpaData(calculateGPA(subjects));
-          setCgpaData(calculateCGPA(resultsData.examResults));
+          calculateGPA(subjects);
           setNoResultsFound(subjects.length === 0);
         } else {
           setResults([]);
@@ -183,6 +185,22 @@ export default function ExamResult() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const calculateGPA = (subjects: ExamResultData[]) => {
+    let totalCredits = 0;
+    let totalPoints = 0;
+    subjects.forEach((subject) => {
+      totalCredits += subject.creditHours;
+      totalPoints += subject.creditHours * getGradePoints(subject.grades);
+    });
+
+    const gpa = totalPoints / totalCredits;
+
+    setGpaData({
+      semesterCredits: totalCredits,
+      gpa: parseFloat(gpa.toFixed(2)),
+    });
   };
 
   return (
@@ -240,61 +258,56 @@ export default function ExamResult() {
                 )}
               </div>
 
-              <div className="grid h-95 card bg-base-300 p-4 mx-4 my-4 rounded-box">
-                <div className="overflow-x-auto">
-                  {results.length > 0 ? (
-                    <table className="table">
-                      <thead>
-                        <tr>
-                          <th>Subject Code</th>
-                          <th>Subject Title</th>
-                          <th>Credit Hours</th>
-                          <th>Marks</th>
-                          <th>Grades</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {results.map((result, index) => (
-                          <tr key={index}>
-                            <td>{result.subjectCode}</td>
-                            <td>{result.subjectTitle}</td>
-                            <td>{result.creditHours}</td>
-                            <td>{result.marks}</td>
-                            <td>{result.grades}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  ) : (
-                    <p className="text-center p-4">
-                      {noResultsFound ? "No exam results found for this semester." : "Please select a course and semester to view results."}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {(gpaData || cgpaData) && (
+              {selectedSemester && (
                 <div className="grid h-95 card bg-base-300 p-4 mx-4 my-4 rounded-box">
                   <div className="overflow-x-auto">
-                    <table className="table">
-                      <thead>
-                        <tr>
-                          <th>Semester Credits</th>
-                          <th>GPA</th>
-                          <th>Total Credit Hours Earned</th>
-                          <th>CGPA</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>{gpaData?.semesterCredits || '-'}</td>
-                          <td>{gpaData?.gpa || '-'}</td>
-                          <td>{cgpaData?.totalCreditHoursEarned || '-'}</td>
-                          <td>{cgpaData?.cgpa || '-'}</td>
-                        </tr>
-                      </tbody>
-                    </table>
+                    {results.length > 0 ? (
+                      <table className="table">
+                        <thead>
+                          <tr>
+                            <th>Subject Code</th>
+                            <th>Subject Title</th>
+                            <th>Credit Hours</th>
+                            <th>Marks</th>
+                            <th>Grades</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {results.map((result, index) => (
+                            <tr key={index}>
+                              <td>{result.subjectCode}</td>
+                              <td>{result.subjectTitle}</td>
+                              <td>{result.creditHours}</td>
+                              <td>{result.marks}</td>
+                              <td>{result.grades}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <p className="text-center p-4">
+                        {noResultsFound ? "No exam results found for this semester." : "Loading results..."}
+                      </p>
+                    )}
                   </div>
+                </div>
+              )}
+
+              {showCGPA && (
+                <div className="stats shadow mx-4 my-2">
+                  {gpaData && (
+                    <div className="stat">
+                      <div className="stat-title">Semester GPA</div>
+                      <div className="stat-value">{gpaData.gpa.toFixed(2)}</div>
+                      <div className="stat-desc">Credits: {gpaData.semesterCredits}</div>
+                    </div>
+                  )}
+                  {cgpa !== null && (
+                    <div className="stat">
+                      <div className="stat-title">Overall CGPA</div>
+                      <div className="stat-value">{cgpa.toFixed(2)}</div>
+                    </div>
+                  )}
                 </div>
               )}
             </>
