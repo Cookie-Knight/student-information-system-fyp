@@ -153,7 +153,7 @@ export default function Attendance() {
     <main>
       <Header />
       <div className="flex flex-col w-full">
-        <div className="grid h-20 card bg-base-300 p-4 ml-4 mr-4 mt-4 rounded-box font-bold text-2xl place-content-evenly">Attendance</div> 
+        <div className="grid h-20 card bg-base-300 p-4 ml-4 mr-4 mt-4 rounded-box font-bold text-2xl place-content-evenly">Absentee</div> 
         <div className="divider"></div> 
 
         {loading ? (
