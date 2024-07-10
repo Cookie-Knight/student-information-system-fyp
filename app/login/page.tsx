@@ -2,47 +2,53 @@
 
 import Particles from "../components/Particles";
 import signIn from "@/lib/firebase/signIn";
+import { FirebaseError } from 'firebase/app';
 import { useRouter } from 'next/navigation';
 import { useState } from "react";
 
 function Login(): JSX.Element {
-  const [ email, setEmail ] = useState( '' );
-  const [ password, setPassword ] = useState( '' );
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const router = useRouter();
 
   // Handle form submission
-  const handleLogin = async ( event: { preventDefault: () => void } ) => {
+  const handleLogin = async (event: { preventDefault: () => void }) => {
     event.preventDefault();
-
+    setErrorMessage(''); // Clear any previous error messages
+  
     // Attempt to sign in with provided email and password
-    const { result, error } = await signIn( email, password );
-
-    if ( error ) {
+    const { result, error } = await signIn(email, password);
+  
+    if (error) {
       // Display and log any sign-in errors
-      console.log( error );
+      console.log(error);
+      if (error instanceof FirebaseError) {
+        setErrorMessage(error.message || 'An error occurred during sign-in');
+      } else {
+        setErrorMessage('An unexpected error occurred');
+      }
       return;
     }
-
+  
     // Sign in successful
-    console.log( result );
-
+    console.log(result);
+  
     // create a new page for admin
-    router.push( "/" );
+    router.push("/");
   }
-
 
   return (
     <main>
       <div className="flex flex-col items-center justify-center w-screen h-screen overflow-hidden bg-gradient-to-tl from-black via-zinc-600/20 to-black">
-            <div className="hero-content flex-col lg:flex-row-reverse">
-            <Particles
+        <div className="hero-content flex-col lg:flex-row-reverse">
+          <Particles
             className="absolute inset-0 -z-10 animate-fade-in"
             quantity={100}
           />
           <div className="text-center lg:text-left">
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-primary to-danger bg-clip-text text-transparent">CampuSphere.</h1>
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-primary to-danger bg-clip-text text-transparent">CampuSphere.</h1>
             <h1 className="text-5xl font-bold">Student Information System</h1>
-          
           </div>
           <div className="card shrink-0 w-full max-w-sm shadow-2xl bg-base-300">
             <form className="card-body" onSubmit={handleLogin}>
@@ -83,18 +89,31 @@ function Login(): JSX.Element {
                     onChange={(e) => setPassword(e.target.value)}
                   />
                 </label>
-
                 <label className="label">
-                  <a href="/forgotpassword" className="label-text-alt link link-hover" >
+                  <a href="/forgotpassword" className="label-text-alt link link-hover">
                     Forgot password?
                   </a>
                 </label>
-
               </div>
+              {errorMessage && (
+                <div className="badge badge-error gap-2">
+                  <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  className="inline-block h-4 w-4 stroke-current">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+                  {errorMessage}
+                </div>
+              )}
               <div className="form-control mt-6">
                 <button className="btn btn-primary">Login</button>
               </div>
-              
             </form>
           </div>
         </div>
