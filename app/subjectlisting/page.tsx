@@ -4,6 +4,8 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useRouter } from 'next/navigation';
 import Header from "../components/Header";
 import Loading from "../components/Loading";
+import DateComponent from '../components/Date';
+import { Clock } from '@/app/components/Clock';
 import { db, auth } from "@/lib/firebase/firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
@@ -34,6 +36,8 @@ export default function SubjectListing() {
   const [selectedSemester, setSelectedSemester] = useState<string | null>(null);
   const [subjects, setSubjects] = useState<SubjectType[]>([]);
   const router = useRouter();
+  const now = new Date();
+
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -127,20 +131,22 @@ export default function SubjectListing() {
             {selectedCourse && (
               <div className="flex justify-between items-center stats stats-vertical lg:stats-horizontal p-4 ml-4 mr-4 mb-4 mt-4 shadow">
                 <div className="stat">
-                  <h2 className="text-lg font-bold" style={{ marginLeft: "20px" }}>
+                  <h2 className="text-lg font-bold">
                     {selectedCourse.name}
                   </h2>
                 </div>
+              
                 <div className="stat">
                   <label className="form-control w-full max-w-xs">
-                    <div className="label" style={{ marginLeft: "190px" }}>
+                    <div className="label">
                       <span className="label-text">Select a semester</span>
                     </div>
+                
                     <select
                       className="select select-bordered"
                       value={selectedSemester || ""}
                       onChange={(e) => handleSemesterChange(e.target.value)}
-                      style={{ marginRight: "-200px", marginLeft: "190px" }}
+                      
                     >
                       <option value="">Pick one</option>
                       {selectedCourse.semesters.map((semester) => (
@@ -151,8 +157,19 @@ export default function SubjectListing() {
                     </select>
                   </label>
                 </div>
+
+                <div className="stat">
+                  <div className="stat-value font-bold text-xl">
+                <DateComponent />
+                </div>
+                <div className="stat-desc font-bold text-xl">
+                <Clock time={now.getTime()} />
+                </div>
+                </div>
+
               </div>
             )}
+
 
             {!selectedCourse && (
               <div className="flex justify-between items-center stats stats-vertical lg:stats-horizontal p-4 ml-4 mr-4 mb-4 mt-4 shadow">
@@ -174,8 +191,20 @@ export default function SubjectListing() {
                     </select>
                   </label>
                 </div>
+
+
+                <div className="stat">
+                  <div className="stat-value font-bold text-xl">
+                <DateComponent />
+                </div>
+                <div className="stat-desc font-bold text-xl">
+                <Clock time={now.getTime()} />
+                </div>
+                </div>
+                
               </div>
             )}
+
 
             <div className="grid h-95 card bg-base-300 p-4 ml-4 mr-4 mb-4 mt-4 rounded-box">
               <div className="overflow-x-auto">

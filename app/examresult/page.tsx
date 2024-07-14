@@ -9,6 +9,8 @@ import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 import { getCGPA } from "@/app/components/gradeCalculations";
 import Header from "@/app/components/Header";
 import Loading from "@/app/components/Loading";
+import { Clock } from "../components/Clock";
+import DateComponent from "../components/Date";
 
 // Types
 interface ExamResultData {
@@ -47,6 +49,7 @@ export default function ExamResult() {
   const [loading, setLoading] = useState<boolean>(true);
   const [showCGPA, setShowCGPA] = useState(false);
   const router = useRouter();
+  const now = new Date();
 
   useEffect(() => {
     const auth = getAuth();
@@ -183,7 +186,7 @@ export default function ExamResult() {
   return (
     <main>
       <Header />
-      <div className="flex flex-col w-full">
+      <div className="flex flex-col min-h-screen min-w-screen">
         <div className="grid h-20 card bg-base-300 p-4 mx-4 mt-4 rounded-box font-bold text-2xl place-content-evenly">Exam Results</div> 
         <div className="divider"></div> 
 
@@ -211,6 +214,14 @@ export default function ExamResult() {
                       ))}
                     </select>
                   </label>
+                </div>
+                <div className="stat">
+                  <div className="stat-value font-bold text-xl">
+                <DateComponent />
+                </div>
+                <div className="stat-desc font-bold text-xl">
+                <Clock time={now.getTime()} />
+                </div>
                 </div>
                 {selectedCourse && (
                   <div className="stat flex justify-end w-full">

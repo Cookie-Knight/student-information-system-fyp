@@ -7,6 +7,8 @@ import { collection, getDocs, doc, getDoc, query, where } from "firebase/firesto
 import Loading from "../components/Loading";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { useRouter } from "next/navigation";
+import DateComponent from '../components/Date';
+import { Clock } from '@/app/components/Clock';
 
 type Exam = {
   programmeCode: string;
@@ -37,6 +39,8 @@ export default function ExamTimetable() {
   const [timetable, setTimetable] = useState<Exam[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
+  const now = new Date();
+
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -126,7 +130,7 @@ export default function ExamTimetable() {
   return (
     <main>
       <Header />
-      <div className="flex flex-col w-full">
+      <div className="flex flex-col min-h-screen min-w-screen">
         <div className="grid h-20 card bg-base-300 p-4 ml-4 mr-4 mt-4 rounded-box font-bold text-2xl place-content-evenly">
           Exam Timetable
         </div>
@@ -138,29 +142,34 @@ export default function ExamTimetable() {
             <>
               {selectedCourse ? (
                 <div className="flex justify-between items-center stats stats-vertical lg:stats-horizontal p-4 ml-4 mr-4 mb-4 mt-4 shadow">
-                  <div className="flex items-center">
-                    <div className="p-4">
-                      <h2 className="text-lg font-bold">{selectedCourse.name}</h2>
+                  <div className="stat">
+                    <h2 className="text-lg font-bold">{selectedCourse.name}</h2>
+                  </div>
+                  <div className="stat">
+                    <label className="form-control w-full max-w-xs">
+                      <div className="label">
+                        <span className="label-text">Select a semester</span>
+                      </div>
+                      <select
+                        className="select select-bordered"
+                        value={selectedSemester || ""}
+                        onChange={(e) => handleSemesterChange(Number(e.target.value))}
+                      >
+                        <option value="">Pick one</option>
+                        {selectedCourse.semesters.map((semester) => (
+                          <option key={semester.semesterNumber} value={semester.semesterNumber}>
+                            Semester {semester.semesterNumber}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                  <div className="stat">
+                    <div className="stat-value font-bold text-xl">
+                      <DateComponent />
                     </div>
-                    <div className="divider divider-horizontal mx-4" style={{ marginLeft: "250px" }}></div>
-                    <div className="p-4">
-                      <label className="form-control w-full max-w-xs" style={{ marginLeft: "200px" }}>
-                        <div className="label">
-                          <span className="label-text">Select a semester</span>
-                        </div>
-                        <select
-                          className="select select-bordered"
-                          value={selectedSemester || ""}
-                          onChange={(e) => handleSemesterChange(Number(e.target.value))}
-                        >
-                          <option value="">Pick one</option>
-                          {selectedCourse.semesters.map((semester) => (
-                            <option key={semester.semesterNumber} value={semester.semesterNumber}>
-                              Semester {semester.semesterNumber}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
+                    <div className="stat-desc font-bold text-xl">
+                      <Clock time={now.getTime()} />
                     </div>
                   </div>
                 </div>
@@ -183,6 +192,14 @@ export default function ExamTimetable() {
                         ))}
                       </select>
                     </label>
+                  </div>
+                  <div className="stat">
+                    <div className="stat-value font-bold text-xl">
+                      <DateComponent />
+                    </div>
+                    <div className="stat-desc font-bold text-xl">
+                      <Clock time={now.getTime()} />
+                    </div>
                   </div>
                 </div>
               )}
