@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useRef, useEffect, useState } from "react";
 import { useMousePosition } from "@/lib/util/mouse";
 
