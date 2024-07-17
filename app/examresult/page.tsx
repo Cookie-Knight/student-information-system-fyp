@@ -215,14 +215,7 @@ export default function ExamResult() {
                     </select>
                   </label>
                 </div>
-                <div className="stat">
-                  <div className="stat-value font-bold text-xl">
-                <DateComponent />
-                </div>
-                <div className="stat-desc font-bold text-xl">
-                <Clock time={now.getTime()} />
-                </div>
-                </div>
+
                 {selectedCourse && (
                   <div className="stat flex justify-end w-full">
                     <label className="form-control w-full max-w-xs">
@@ -244,6 +237,14 @@ export default function ExamResult() {
                     </label>
                   </div>
                 )}
+                                <div className="stat">
+                  <div className="stat-value font-bold text-xl">
+                <DateComponent />
+                </div>
+                <div className="stat-desc font-bold text-xl">
+                <Clock time={now.getTime()} />
+                </div>
+                </div>
               </div>
 
               {selectedSemester && (

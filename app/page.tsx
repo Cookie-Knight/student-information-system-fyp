@@ -8,6 +8,7 @@ import Header from "@/app/components/Header";
 import { Clock } from '@/app/components/Clock';
 import { getCGPA } from '@/app/components/gradeCalculations';
 
+// Define interfaces for type safety
 interface StudentData {
   name: string;
   studentId: string;
@@ -27,6 +28,7 @@ interface Lecture {
 }
 
 const Main: React.FC = () => {
+  // State to hold student data and lectures
   const [studentData, setStudentData] = useState<StudentData>({
     name: "",
     studentId: "",
@@ -37,15 +39,18 @@ const Main: React.FC = () => {
 
   const [lectures, setLectures] = useState<Lecture[]>([]);
   const router = useRouter();
+  const now = new Date();
 
   useEffect(() => {
     const checkAuth = async () => {
+      // Check authentication state
       auth.onAuthStateChanged(async (user) => {
         if (!user) {
+          // Redirect to login if user is not authenticated
           router.push('/login');
         } else {
           try {
-            // Fetch student data
+            // Fetch student data from Firestore
             const docRef = doc(db, "students", user.uid);
             const docSnap = await getDoc(docRef);
 
@@ -55,7 +60,7 @@ const Main: React.FC = () => {
               // Fetch CGPA from examresult page
               try {
                 const cgpa = await getCGPA(user.uid);
-                data.cgpa = cgpa.toString(); // Update CGPA with the value from examresult
+                data.cgpa = cgpa.toString();
               } catch (error) {
                 console.error("Error fetching CGPA:", error);
               }
@@ -88,6 +93,7 @@ const Main: React.FC = () => {
     checkAuth();
   }, [router]);
 
+  // Function to render each semester in the timeline
   const renderSemester = (semesterNumber: number) => {
     const isCompleted = semesterNumber <= studentData.completedSemesters;
     return (
@@ -116,14 +122,13 @@ const Main: React.FC = () => {
     );
   };
 
-  const now = new Date();
 
   return (
     <main>
       <Header />
       <div className="min-h-screen min-w-screen p-5">
+        {/* Title and Clock section */}
         <div className="flex w-full flex-col lg:flex-row">
-          {/* Cards */}
           <div className="card bg-base-300 rounded-box grid h-16 flex-grow place-items-center">          
             <p className="h-16 pl-4 font-bold rounded-box text-3xl content-center bg-gradient-to-l from-indigo-50 to-violet-600 bg-clip-text text-transparent">
               Student Information System
@@ -139,11 +144,10 @@ const Main: React.FC = () => {
 
         <div className="divider"></div>
 
-        {/* Stats Section */}
+        {/* Student Stats Section */}
         <div className="flex justify-center items-center stats shadow">
           <div className="stat">
             <div className="stat-figure text-primary">
-              {/* SVG */}
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block h-8 w-8 stroke-current">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
               </svg>
@@ -154,7 +158,6 @@ const Main: React.FC = () => {
 
           <div className="stat">
             <div className="stat-figure text-secondary">
-              {/* SVG */}
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block h-8 w-8 stroke-current">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Zm6-10.125a1.875 1.875 0 1 1-3.75 0 1.875 1.875 0 0 1 3.75 0Zm1.294 6.336a6.721 6.721 0 0 1-3.17.789 6.721 6.721 0 0 1-3.168-.789 3.376 3.376 0 0 1 6.338 0Z" />
               </svg>
@@ -165,7 +168,6 @@ const Main: React.FC = () => {
 
           <div className="stat">
             <div className="stat-figure static">
-              {/* SVG */}
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="inline-block h-8 w-8 stroke-current">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5m.75-9 3-3 2.148 2.148A12.061 12.061 0 0 1 16.5 7.605" />
               </svg>
