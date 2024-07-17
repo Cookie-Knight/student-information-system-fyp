@@ -78,7 +78,7 @@ export default function SubjectListing() {
                     (userSemester: any) => userSemester.id === semester.id
                   )?.subjects.find(
                     (userSubject: any) => userSubject.code === subject.code
-                  )?.status || "not enrolled"
+                  )?.status || "Not Enrolled"
                 }))
               }))
             };
