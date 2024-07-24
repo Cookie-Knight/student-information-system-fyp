@@ -13,15 +13,17 @@ export default function Feedbacks() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
+    // Handles form submission
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError("");
 
         try {
-            // Remove spaces and convert to lowercase for the document ID
+            // Create a unique document ID by removing spaces and converting the name to lowercase
             const docId = name.trim().toLowerCase().replace(/\s+/g, '-');
             const feedbackDoc = doc(collection(db, "feedbacks"), docId);
+            // Save feedback data to Firestore
             await setDoc(feedbackDoc, {
                 name,
                 email,
@@ -29,6 +31,7 @@ export default function Feedbacks() {
                 message,
                 timestamp: new Date(),
             });
+            // Clear form fields after submission
             setName("");
             setEmail("");
             setTitle("");

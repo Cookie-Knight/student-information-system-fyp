@@ -41,7 +41,7 @@ export default function ExamTimetable() {
   const router = useRouter();
   const now = new Date();
 
-
+  // Listen for authentication state changes and fetch courses if authenticated
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -56,8 +56,9 @@ export default function ExamTimetable() {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [router]);
 
+  // Fetch courses for the authenticated user
   const fetchUserCourses = async (userId: string) => {
     try {
       setLoading(true);
@@ -87,6 +88,7 @@ export default function ExamTimetable() {
     }
   };
 
+  // Handle semester change and fetch corresponding timetable
   const handleSemesterChange = useCallback(
     (semesterNumber: number) => {
       setSelectedSemester(semesterNumber);
@@ -99,6 +101,7 @@ export default function ExamTimetable() {
     [selectedCourse]
   );
 
+  // Handle course selection and reset relevant states
   const handleCourseSelect = (courseId: string) => {
     const selected = courses.find((course) => course.id === courseId) || null;
     console.log("Selected course: ", selected); // Debug
@@ -107,6 +110,7 @@ export default function ExamTimetable() {
     setTimetable([]);
   };
 
+  // Fetch exam timetable for the selected course and semester
   const fetchTimetable = async (courseId: string, semester: number) => {
     try {
       setLoading(true);

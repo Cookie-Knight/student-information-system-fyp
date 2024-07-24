@@ -1,12 +1,12 @@
-"use client";
+"use client"; // Directive indicating this component will run on the client side
 
 import React, { useEffect, useState } from "react";
-import Header from "@/app/components/Header";
-import { db, auth, storage } from "@/lib/firebase/firebaseConfig";
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
-import { useRouter } from "next/navigation";
-import { onAuthStateChanged } from "firebase/auth";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import Header from "@/app/components/Header"; // Import Header component
+import { db, auth, storage } from "@/lib/firebase/firebaseConfig"; // Import Firebase configuration
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore"; // Import Firestore functions
+import { useRouter } from "next/navigation"; // Import useRouter for navigation
+import { onAuthStateChanged } from "firebase/auth"; // Import Firebase Auth functions
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Import Firebase Storage functions
 
 interface Course {
   courseId: string;
@@ -40,7 +40,7 @@ const Profile: React.FC = () => {
     race: "",
     dob: "",
     avatarUrl: "",
-  });
+  }); // State to store student data
 
   const [editableData, setEditableData] = useState<Partial<StudentData>>({
     name: "",
@@ -51,22 +51,22 @@ const Profile: React.FC = () => {
     race: "",
     dob: "",
     avatarUrl: "",
-  });
+  }); // State to store editable data
 
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null); // State to store avatar URL
 
-  const router = useRouter();
+  const router = useRouter(); // Initialize useRouter
 
   useEffect(() => {
     const fetchData = async (uid: string) => {
       try {
         const docRef = doc(db, "students", uid);
-        const docSnap = await getDoc(docRef);
+        const docSnap = await getDoc(docRef); // Fetch student document
         if (docSnap.exists()) {
           const data = docSnap.data() as StudentData;
-          setStudentData(data);
-          setEditableData(data);
-          setAvatarUrl(data.avatarUrl || null);
+          setStudentData(data); // Set student data
+          setEditableData(data); // Set editable data
+          setAvatarUrl(data.avatarUrl || null); // Set avatar URL
         } else {
           console.log("No such document!");
         }
@@ -78,7 +78,7 @@ const Profile: React.FC = () => {
     const checkAuth = () => {
       onAuthStateChanged(auth, (user) => {
         if (user) {
-          fetchData(user.uid);
+          fetchData(user.uid); // Fetch data if user is authenticated
         } else {
           console.log("User is not authenticated. Redirecting to login page.");
           router.push("/"); // Redirect to '/' if user is not authenticated
@@ -86,7 +86,7 @@ const Profile: React.FC = () => {
       });
     };
 
-    checkAuth();
+    checkAuth(); // Check authentication on component mount
   }, [router]);
 
   const resizeAndCropImage = async (file: File, targetWidth: number, targetHeight: number): Promise<Blob> => {
@@ -128,7 +128,7 @@ const Profile: React.FC = () => {
 
           canvas.toBlob((blob) => {
             if (blob) {
-              resolve(blob);
+              resolve(blob); // Resolve the promise with the cropped image blob
             } else {
               reject(new Error("Failed to convert canvas to Blob"));
             }
@@ -147,7 +147,7 @@ const Profile: React.FC = () => {
     const { name, value } = e.target;
     setEditableData((prevData) => ({
       ...prevData,
-      [name]: value,
+      [name]: value, // Update the editable data state
     }));
   };
 
@@ -161,8 +161,8 @@ const Profile: React.FC = () => {
       }
 
       const docRef = doc(db, "students", user.uid);
-      await setDoc(docRef, editableData as StudentData, { merge: true });
-      setStudentData(editableData as StudentData);
+      await setDoc(docRef, editableData as StudentData, { merge: true }); // Update Firestore document
+      setStudentData(editableData as StudentData); // Update student data state
       alert("Data updated successfully!");
     } catch (error) {
       console.error("Error updating document: ", error);
@@ -181,17 +181,17 @@ const Profile: React.FC = () => {
     }
 
     try {
-      const croppedBlob = await resizeAndCropImage(file, 400, 400); 
+      const croppedBlob = await resizeAndCropImage(file, 400, 400); // Resize and crop the uploaded image
       const storageRef = ref(storage, `avatars/${user.uid}/${file.name}`);
-      const snapshot = await uploadBytes(storageRef, croppedBlob);
-      const downloadUrl = await getDownloadURL(snapshot.ref);
+      const snapshot = await uploadBytes(storageRef, croppedBlob); // Upload the cropped image to Firebase Storage
+      const downloadUrl = await getDownloadURL(snapshot.ref); // Get the download URL
 
       const userDocRef = doc(db, "students", user.uid);
       await updateDoc(userDocRef, {
         avatarUrl: downloadUrl
-      } as Partial<StudentData>);
+      } as Partial<StudentData>); // Update the Firestore document with the new avatar URL
 
-      setAvatarUrl(downloadUrl);
+      setAvatarUrl(downloadUrl); // Update the avatar URL state
       alert("Avatar uploaded successfully!");
     } catch (error) {
       console.error("Error uploading avatar: ", error);
@@ -201,16 +201,16 @@ const Profile: React.FC = () => {
 
   return (
     <main>
-      <Header />
+      <Header /> {/* Render Header component */}
       <div className="flex flex-col min-h-screen min-w-screen">
-        <div className="grid h-20 card bg-base-300 p-4 ml-4 mr-4 mt-4 rounded-box font-bold text-2xl place-content-evenly">Profile Information</div> 
-        <div className="divider"></div> 
+        <div className="grid h-20 card bg-base-300 p-4 ml-4 mr-4 mt-4 rounded-box font-bold text-2xl place-content-evenly">Profile Information</div> {/* Title of the section */}
+        <div className="divider"></div> {/* Divider line */}
         
         <div className="flex flex-col p-4 lg:flex-row">
           <div className="card h-fit w-auto bg-base-300 shadow-xl">
             <figure>
               <img className="rounded-box"
-                src={avatarUrl || 'https://static.vecteezy.com/system/resources/previews/017/800/528/non_2x/user-simple-flat-icon-illustration-vector.jpg'}
+                src={avatarUrl || 'https://static.vecteezy.com/system/resources/previews/017/800/528/non_2x/user-simple-flat-icon-illustration-vector.jpg'} // Display avatar or default image
                 alt="Avatar"
               />
             </figure>
@@ -219,26 +219,26 @@ const Profile: React.FC = () => {
                 <div className="label">
                   <span className="label-text-alt text-sm">Student Identification Number</span>
                 </div>
-                <input type="text" placeholder="Student ID" className="input input-bordered w-full max-w-xs bg-gray-300 text-gray-700" value={studentData.studentId} disabled/>  
+                <input type="text" placeholder="Student ID" className="input input-bordered w-full max-w-xs bg-gray-300 text-gray-700" value={studentData.studentId} disabled/> {/* Display student ID */} 
               </label>
 
               <label className="form-control w-full max-w-xs">
                 <div className="label">
                   <span className="label-text-alt text-sm">Course Name</span>
                 </div>
-                <input type="text" placeholder="Course" className="input input-bordered w-full max-w-xs bg-gray-300 text-gray-700" value={studentData.courses.map(course => course.courseId).join(", ")} disabled/>  
+                <input type="text" placeholder="Course" className="input input-bordered w-full max-w-xs bg-gray-300 text-gray-700" value={studentData.courses.map(course => course.courseId).join(", ")} disabled/> {/* Display course names */} 
               </label>
 
               <label className="form-control w-full max-w-xs">
                 <div className="label">
                   <span className="label-text-alt text-sm">Current Semester</span>
                 </div>
-                <input type="text" placeholder="Course" className="input input-bordered w-full max-w-xs bg-gray-300 text-gray-700" value={studentData.currentSemester} disabled/>  
+                <input type="text" placeholder="Course" className="input input-bordered w-full max-w-xs bg-gray-300 text-gray-700" value={studentData.currentSemester} disabled/> {/* Display current semester */} 
               </label>
             </div>
           </div>
 
-          <div className="divider lg:divider-horizontal"></div>
+          <div className="divider lg:divider-horizontal"></div> {/* Horizontal divider for larger screens */}
 
           <div className="card bg-base-300 flex-grow p-5 rounded-box">
 
@@ -246,60 +246,60 @@ const Profile: React.FC = () => {
               <div className="label">
                 <span className="label-text-alt text-sm">Full Name</span>
               </div>
-              <input type="text" placeholder="Full Name" name="name" value={editableData.name} onChange={handleInputChange}/>  
+              <input type="text" placeholder="Full Name" name="name" value={editableData.name} onChange={handleInputChange}/> {/* Input for full name */} 
             </label>
 
             <label className="input input-bordered flex items-center gap-2 mb-6">
               <div className="label">
                 <span className="label-text-alt text-sm">Personal Email</span>
               </div>
-              <input type="text" placeholder="Personal Email" name="personalEmail" value={editableData.personalEmail} onChange={handleInputChange} />  
+              <input type="text" placeholder="Personal Email" name="personalEmail" value={editableData.personalEmail} onChange={handleInputChange} /> {/* Input for personal email */} 
             </label>
 
             <label className="input input-bordered flex items-center gap-2 mb-6">
               <div className="label">
                 <span className="label-text-alt text-sm">Permanent Address</span>
               </div>
-              <input type="text" placeholder="Permanent Address" name="permanentAddress" value={editableData.permanentAddress} onChange={handleInputChange} />  
+              <input type="text" placeholder="Permanent Address" name="permanentAddress" value={editableData.permanentAddress} onChange={handleInputChange} /> {/* Input for permanent address */} 
             </label>
 
             <label className="input input-bordered flex items-center gap-2 mb-6">
               <div className="label">
                 <span className="label-text-alt text-sm">Identification Number / Passport ID</span>
               </div>
-              <input type="text" placeholder="Identification Number"  name="identificationNumber" value={editableData.identificationNumber} onChange={handleInputChange} />  
+              <input type="text" placeholder="Identification Number"  name="identificationNumber" value={editableData.identificationNumber} onChange={handleInputChange} /> {/* Input for identification number */} 
             </label>
 
             <label className="input input-bordered flex items-center gap-2 mb-6">
               <div className="label">
                 <span className="label-text-alt text-sm">Gender</span>
               </div>
-              <input type="text" placeholder="Gender"  name="gender" value={editableData.gender} onChange={handleInputChange} />  
+              <input type="text" placeholder="Gender"  name="gender" value={editableData.gender} onChange={handleInputChange} /> {/* Input for gender */} 
             </label>
 
             <label className="input input-bordered flex items-center gap-2 mb-6">
               <div className="label">
                 <span className="label-text-alt text-sm">Race</span>
               </div>
-              <input type="text" placeholder="Race"  name="race" value={editableData.race} onChange={handleInputChange} />  
+              <input type="text" placeholder="Race"  name="race" value={editableData.race} onChange={handleInputChange} /> {/* Input for race */} 
             </label>
 
             <label className="input input-bordered flex items-center gap-2 mb-6">
               <div className="label">
                 <span className="label-text-alt text-sm">Date of Birth</span>
               </div>
-              <input type="text" placeholder="Date of Birth"  name="dob" value={editableData.dob} onChange={handleInputChange} />  
+              <input type="text" placeholder="Date of Birth"  name="dob" value={editableData.dob} onChange={handleInputChange} /> {/* Input for date of birth */} 
             </label>
 
             <label className="form-control w-full max-w-xs">
               <div className="label">
                 <span className="label-text text-sm">Upload your profile picture</span>
               </div>
-              <input type="file" accept="image/*" className="file-input file-input-bordered w-full max-w-xs" onChange={handleFileUpload} />
+              <input type="file" accept="image/*" className="file-input file-input-bordered w-full max-w-xs" onChange={handleFileUpload} /> {/* File input for avatar upload */}
             </label>
 
             <button className="btn mt-4" onClick={handleSubmit}>
-              Confirm Information Update
+              Confirm Information Update {/* Button to submit updated information */}
             </button>
           </div>
         </div>

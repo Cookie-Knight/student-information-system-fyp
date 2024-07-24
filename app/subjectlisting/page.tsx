@@ -30,29 +30,30 @@ type CourseType = {
 };
 
 export default function SubjectListing() {
-  const [user, setUser] = useState<User | null>(null);
-  const [courses, setCourses] = useState<CourseType[]>([]);
-  const [selectedCourse, setSelectedCourse] = useState<CourseType | null>(null);
-  const [selectedSemester, setSelectedSemester] = useState<string | null>(null);
-  const [subjects, setSubjects] = useState<SubjectType[]>([]);
+  const [user, setUser] = useState<User | null>(null); // State to store user information
+  const [courses, setCourses] = useState<CourseType[]>([]); // State to store list of courses
+  const [selectedCourse, setSelectedCourse] = useState<CourseType | null>(null); // State to store the selected course
+  const [selectedSemester, setSelectedSemester] = useState<string | null>(null); // State to store the selected semester ID
+  const [subjects, setSubjects] = useState<SubjectType[]>([]); // State to store list of subjects
   const router = useRouter();
   const now = new Date();
 
-
+  // useEffect hook to handle user authentication state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        setUser(user);
-        fetchUserCourses(user.uid);
+        setUser(user); // Set the user state
+        fetchUserCourses(user.uid); // Fetch user courses if logged in
       } else {
-        setUser(null);
-        router.push('/login');
+        setUser(null); // Clear user state
+        router.push('/login'); // Redirect to login page if not logged in
       }
     });
 
-    return () => unsubscribe();
+    return () => unsubscribe(); // Cleanup subscription on unmount
   }, []);
 
+  // Function to fetch user courses from Firestore
   const fetchUserCourses = async (userId: string) => {
     try {
       const userDoc = await getDoc(doc(db, "students", userId));
@@ -82,26 +83,27 @@ export default function SubjectListing() {
                 }))
               }))
             };
-            coursesList.push(course);
+            coursesList.push(course); // Add course to the list
           }
         }
 
-        setCourses(coursesList as CourseType[]);
+        setCourses(coursesList as CourseType[]); // Set the courses state
       }
     } catch (error) {
-      console.error("Error fetching user courses: ", error);
+      console.error("Error fetching user courses: ", error); // Handle error
     }
   };
 
+  // Callback to handle semester change
   const handleSemesterChange = useCallback(
     (semesterId: string) => {
-      setSelectedSemester(semesterId);
+      setSelectedSemester(semesterId); // Set the selected semester ID
       if (semesterId && selectedCourse) {
         const selectedSemesterData = selectedCourse.semesters.find(
           (semester) => semester.id === semesterId
         );
         if (selectedSemesterData) {
-          setSubjects(selectedSemesterData.subjects || []);
+          setSubjects(selectedSemesterData.subjects || []); // Set the subjects for the selected semester
         } else {
           setSubjects([]);
         }
@@ -109,30 +111,31 @@ export default function SubjectListing() {
         setSubjects([]);
       }
     },
-    [selectedCourse]
+    [selectedCourse] // Dependency array
   );
 
+  // Function to handle course selection
   const handleCourseSelect = (courseId: string) => {
     const selected = courses.find((course) => course.id === courseId) || null;
-    setSelectedCourse(selected);
-    setSelectedSemester(null);
-    setSubjects([]);
+    setSelectedCourse(selected); // Set the selected course
+    setSelectedSemester(null); // Reset the selected semester
+    setSubjects([]); // Clear subjects list
   };
 
   return (
     <main>
-      <Header />
+      <Header /> {/* Render header component */}
       <div className="flex flex-col min-h-screen min-w-screen">
         <div className="grid h-20 card bg-base-300 p-4 ml-4 mr-4 mt-4 rounded-box font-bold text-2xl place-content-evenly">Subject Listing</div>
         <div className="divider"></div>
 
-        {user ? (
+        {user ? ( // Render if user is logged in
           <>
             {selectedCourse && (
               <div className="flex justify-between items-center stats stats-vertical lg:stats-horizontal p-4 ml-4 mr-4 mb-4 mt-4 shadow">
                 <div className="stat">
                   <h2 className="text-lg font-bold">
-                    {selectedCourse.name}
+                    {selectedCourse.name} {/* Display selected course name */}
                   </h2>
                 </div>
               
@@ -151,7 +154,7 @@ export default function SubjectListing() {
                       <option value="">Pick one</option>
                       {selectedCourse.semesters.map((semester) => (
                         <option key={semester.id} value={semester.id}>
-                          {semester.name}
+                          {semester.name} {/* Display semester name */}
                         </option>
                       ))}
                     </select>
@@ -160,10 +163,10 @@ export default function SubjectListing() {
 
                 <div className="stat">
                   <div className="stat-value font-bold text-xl">
-                <DateComponent />
+                <DateComponent /> {/* Display date */}
                 </div>
                 <div className="stat-desc font-bold text-xl">
-                <Clock time={now.getTime()} />
+                <Clock time={now.getTime()} /> {/* Display clock */}
                 </div>
                 </div>
 
@@ -185,7 +188,7 @@ export default function SubjectListing() {
                       <option value="">Pick one</option>
                       {courses.map((course) => (
                         <option key={course.id} value={course.id}>
-                          {course.name}
+                          {course.name} {/* Display course name */}
                         </option>
                       ))}
                     </select>
@@ -195,10 +198,10 @@ export default function SubjectListing() {
 
                 <div className="stat">
                   <div className="stat-value font-bold text-xl">
-                <DateComponent />
+                <DateComponent /> {/* Display date */}
                 </div>
                 <div className="stat-desc font-bold text-xl">
-                <Clock time={now.getTime()} />
+                <Clock time={now.getTime()} /> {/* Display clock */}
                 </div>
                 </div>
                 
@@ -220,21 +223,21 @@ export default function SubjectListing() {
                     <tbody>
                       {subjects.map((subject) => (
                         <tr key={subject.code}>
-                          <td>{subject.code}</td>
-                          <td>{subject.name}</td>
-                          <td>{subject.status}</td>
+                          <td>{subject.code}</td> {/* Display subject code */}
+                          <td>{subject.name}</td> {/* Display subject name */}
+                          <td>{subject.status}</td> {/* Display subject status */}
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 ) : (
-                  <p className="text-center p-4">No subjects found for this semester.</p>
+                  <p className="text-center p-4">No subjects found for this semester.</p> // Display message if no subjects found
                 )}
               </div>
             </div>
           </>
         ) : (
-          <Loading />
+          <Loading /> // Render loading component if user is not logged in
         )}
       </div>
     </main>

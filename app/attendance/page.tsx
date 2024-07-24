@@ -50,6 +50,7 @@ export default function Attendance() {
   const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
 
+  // Listen for authentication state changes and fetch courses if user is authenticated
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
@@ -64,6 +65,7 @@ export default function Attendance() {
     return () => unsubscribe();
   }, []);
 
+  // Fetches courses for the authenticated user
   const fetchUserCourses = async (userId: string) => {
     try {
       setLoading(true);
@@ -92,6 +94,7 @@ export default function Attendance() {
     }
   };
 
+  // Handles semester selection and triggers attendance data fetch
   const handleSemesterChange = useCallback(
     (semesterNumber: number) => {
       setSelectedSemester(semesterNumber);
@@ -104,6 +107,7 @@ export default function Attendance() {
     [selectedCourse, user]
   );
 
+  // Handles course selection
   const handleCourseSelect = (courseId: string) => {
     const selected = courses.find((course) => course.id === courseId) || null;
     setSelectedCourse(selected);
@@ -111,6 +115,7 @@ export default function Attendance() {
     setAttendanceData([]);
   };
 
+  // Fetches attendance data for a specific course and semester
   const fetchAttendanceData = async (courseId: string, semesterNumber: number) => {
     if (!user) return;
 

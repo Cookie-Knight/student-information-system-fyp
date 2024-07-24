@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
@@ -51,6 +50,7 @@ export default function ExamResult() {
   const router = useRouter();
   const now = new Date();
 
+  // Monitor auth state and fetch user courses and CGPA if authenticated
   useEffect(() => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -67,6 +67,7 @@ export default function ExamResult() {
     return () => unsubscribe();
   }, [router]);
 
+  // Fetch CGPA for the authenticated user
   const fetchCGPA = async (userId: string) => {
     try {
       const fetchedCGPA = await getCGPA(userId);
@@ -77,6 +78,7 @@ export default function ExamResult() {
     }
   };
 
+  // Fetch courses for the authenticated user
   const fetchUserCourses = async (userId: string) => {
     try {
       setLoading(true);
@@ -105,6 +107,7 @@ export default function ExamResult() {
     }
   };
 
+  // Handle semester change and fetch corresponding results
   const handleSemesterChange = useCallback(
     (semesterNumber: number) => {
       setSelectedSemester(semesterNumber);
@@ -121,6 +124,7 @@ export default function ExamResult() {
     [selectedCourse, user]
   );
 
+  // Handle course selection and reset relevant states
   const handleCourseSelect = (courseId: string) => {
     const selected = courses.find((course) => course.id === courseId) || null;
     setSelectedCourse(selected);
@@ -131,6 +135,7 @@ export default function ExamResult() {
     setShowCGPA(false);
   };
 
+  // Fetch exam results for the selected course and semester
   const fetchResults = async (studentId: string, courseId: string, semesterNumber: number) => {
     try {
       setLoading(true);
@@ -167,6 +172,7 @@ export default function ExamResult() {
     }
   };
 
+  // Calculate GPA based on fetched results
   const calculateGPA = (subjects: ExamResultData[]) => {
     let totalCredits = 0;
     let totalPoints = 0;
@@ -237,13 +243,14 @@ export default function ExamResult() {
                     </label>
                   </div>
                 )}
-                                <div className="stat">
+                {/* Display current date and time */}
+                <div className="stat">
                   <div className="stat-value font-bold text-xl">
-                <DateComponent />
-                </div>
-                <div className="stat-desc font-bold text-xl">
-                <Clock time={now.getTime()} />
-                </div>
+                    <DateComponent />
+                  </div>
+                  <div className="stat-desc font-bold text-xl">
+                    <Clock time={now.getTime()} />
+                  </div>
                 </div>
               </div>
 
